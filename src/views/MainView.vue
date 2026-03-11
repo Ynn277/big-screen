@@ -28,7 +28,7 @@
             <div class="txt">列车总数</div>
           </div>
           <div class="grid-item">
-            <div class="num">{{ currentData.total > 0 ? (currentData.person / currentData.total).toFixed(2) : '-' }}</div>
+            <div class="num">{{ currentData.online }}</div>
             <div class="txt">人车比</div>
           </div>
           <div class="grid-item">
@@ -455,6 +455,7 @@ onMounted(async () => {
         total: Number(item.total) || 0,
         person: Number(item.person) || 0,
         certify: Number(item.certify) || 0,
+        online: Number(item.online) || 0,
         // 解析故障分布，将 "1511,41,97,7192,4688" 转成数组
         fault: { 
           distribution: item.fault_dist ? item.fault_dist.split(',').map(Number) : [0, 0, 0, 0, 0] 
@@ -628,7 +629,8 @@ const initChartsOptions = () => {
 .project-row { padding: 8px 12px; border-radius: 4px; border: 1px solid transparent; transition: all 0.3s; } */
 .list-panel { 
   flex: 1; 
-  overflow: hidden; 
+  /* overflow: hidden;  */
+  overflow-y: auto;
   display: flex; 
   flex-direction: column; 
   /* 给列表加一点顶部内边距 */

@@ -27,57 +27,67 @@
 </script>
 
 <style scoped>
-/* 1. 整体容器布局 */
+/* 1. 整体容器：保持完全透明，让两侧装饰线自然悬空 */
 .header-container {
   width: 100%;
   height: 80px; 
   display: flex;
   justify-content: space-between;
-  align-items: center; /* 垂直居中 */
+  align-items: center; 
   padding: 0 20px;
-  background-color: transparent; /* 保持透明，由父级背景决定 */
+  background-color: transparent; /* 确保这里没有任何背景色，完全透出地球 */
 }
 
-/* 2. 两侧线条区域 (各占 25%) */
-.header-side {
-  width: 40%;
-  height: 100%;
-  display: flex;
-  align-items: center; /* 让线条垂直居中 */
-}
-
-/* 3. 中间标题区域 (占 50%) */
+/* 3. 中间标题区域：改为清透的毛玻璃蒙版 */
 .header-center {
-  width: 50%;
+  width: 45%; 
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  /* === 关键修改：换成清透背景 === */
+  background: rgba(200, 200, 200, 0.08); /* 极度透明的浅灰白，和左右面板呼应 */
+  backdrop-filter: blur(3px);            /* 轻微模糊背后的地球轮廓 */
+  -webkit-backdrop-filter: blur(3px);
+  
+  /* 底部保留一条青色线压住阵脚，加上微弱的内发光 */
+  border-bottom: 2px solid rgba(0, 228, 255, 0.4);
+  box-shadow: inset 0 -10px 20px rgba(0, 228, 255, 0.05);
+  
+  /* 保留这个倒梯形切角，很有科技感（如果你更喜欢普通的矩形，可以把这一行删掉） */
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
 }
 
-/* 4. 中间两侧的装饰括号 */
-.deco-bracket {
-  width: 100px; /* 调整宽度，原 300px 太宽导致挤压文字 */
-  height: 50px;
-}
-
-/* 5. 标题文字样式 (重点优化) */
+/* 标题文字样式：确保在透明背景下依然清晰 */
 .title-text {
   font-size: 32px;
   font-weight: bold;
-  color: #fff;
-  margin: 0 15px; /* 文字和括号的间距 */
-  white-space: nowrap; /* 强制不换行 */
-  letter-spacing: 4px; /* 字间距，增加大气感 */
+  margin: 0 15px; 
+  white-space: nowrap; 
+  letter-spacing: 4px; 
   
-  /* 科技感渐变文字 */
-  background: linear-gradient(to bottom, #ffffff 0%, #85c6ff 100%);
-  -webkit-background-clip: text;
-  color: transparent;
-  
-  /* 文字发光阴影 */
-  text-shadow: 0 0 10px rgba(0, 161, 255, 0.5);
+  color: #ffffff;
+  /* 增强文字阴影，防止透明背景导致文字和地球底图顺色 */
+  text-shadow: 0 4px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 228, 255, 0.8);
 }
+
+/* 2. 两侧线条区域 */
+.header-side {
+  width: 40%;
+  height: 100%;
+  display: flex;
+  align-items: center; 
+}
+
+
+/* 4. 中间两侧的装饰括号 */
+.deco-bracket {
+  width: 100px; 
+  height: 50px;
+}
+
+
 
 /* 响应式微调：屏幕较宽时，装饰线可以长一点 */
 @media screen and (min-width: 1600px) {

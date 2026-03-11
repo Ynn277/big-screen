@@ -544,8 +544,28 @@ const initChartsOptions = () => {
 /* 保持原有布局结构 */
 .main-layout { position: relative; width: 100%; height: 100%; overflow: hidden; color: #fff; background: transparent; }
 .center-column { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-.side-column { position: absolute; top: 10px; bottom: 20px; width: 26%; z-index: 10; display: flex; flex-direction: column; gap: 15px; pointer-events: none;text-shadow: 0 2px 2px #000000, 
-    0 0 8px rgba(0, 0, 0, 0.8);top: 80px;z-index: 10; }
+
+.side-column { 
+  position: absolute; 
+  top: 80px; 
+  bottom: 20px; 
+  width: 26%; 
+  z-index: 10; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 20px; /* 控制上下模块之间的间距，20px 能透出不错的地球背景 */
+  
+  /* === 关键：去掉这里的 background、blur 和 border，让容器完全透明 === */
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0; /* 内边距也去掉，移交给子模块 */
+  
+  /* 容器设置为穿透，这样鼠标点击模块空隙时，可以拖拽背后的地球 */
+  pointer-events: none; 
+  
+  text-shadow: 0 2px 2px #000000, 0 0 8px rgba(0, 0, 0, 0.8); 
+}
 
 .left-col { left: 20px; }
 .right-col { right: 20px; }
@@ -554,25 +574,20 @@ const initChartsOptions = () => {
 /* .sub-panel { pointer-events: auto; padding: 10px; display: flex; flex-direction: column; background: transparent; } */
 /* 通用面板样式 */
 .sub-panel { 
+  /* 模块自身恢复鼠标交互，保证图表 tooltip 和列表滚动正常 */
   pointer-events: auto; 
-  padding: 10px; 
   display: flex; 
   flex-direction: column; 
   
-  /* === 修改开始：添加灰色蒙版背景 === */
-  /* 原代码: background: transparent; */
+  /* === 关键：把之前的清透蒙版样式加到这里 === */
+  background: rgba(200, 200, 200, 0.08); /* 极度透明的浅灰白 */
+  backdrop-filter: blur(3px);            /* 毛玻璃模糊 */
+  -webkit-backdrop-filter: blur(3px);
   
-  /* 灰色半透明背景 (RGBA: 红,绿,蓝,透明度) */
-  /* background: rgba(80, 80, 80, 0.4);  */
-  background: transparent;
-  /* 可选：添加毛玻璃效果，让背景模糊一点，更有质感 */
-  /* backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px); */
-  
-  /* 可选：添加圆角和边框，让面板更像一个独立的模块 */
-  /* border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1); */
-  /* === 修改结束 === */
+  border: 1px solid rgba(0, 228, 255, 0.3); /* 青色科技边框 */
+  box-shadow: inset 0 0 15px rgba(0, 228, 255, 0.1), 0 5px 15px rgba(0, 0, 0, 0.4);
+  border-radius: 8px; /* 给每个小模块切出圆角 */
+  padding: 15px;      /* 保证里面的文字和图表不会贴着边框 */
 }
 .panel-title { color: #00e4ff; font-size: 18px; font-weight: bold; margin-bottom: 12px; padding-left: 10px; border-left: 4px solid #00e4ff; text-shadow: 0 0 10px rgba(0, 228, 255, 0.8); }
 

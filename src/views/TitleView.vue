@@ -10,7 +10,7 @@
     <div class="header-center">
       <dv-decoration-8 class="deco-bracket" :color="['#568aea', '#568aea']" />
       
-      <div class="title-text">全球智能维护系统</div>
+      <div class="title-text">中车株机车辆运维总览图</div>
       
       <dv-decoration-8 :reverse="true" class="deco-bracket" :color="['#568aea', '#568aea']" />
     </div>
@@ -30,7 +30,7 @@
 /* 1. 整体容器布局 */
 .header-container {
   width: 100%;
-  height: 80px; /* 设定一个固定高度 */
+  height: 80px; 
   display: flex;
   justify-content: space-between;
   align-items: center; /* 垂直居中 */

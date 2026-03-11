@@ -28,8 +28,8 @@
             <div class="txt">列车总数</div>
           </div>
           <div class="grid-item">
-            <div class="num">{{ currentData.online }}</div>
-            <div class="txt">上线数量</div>
+            <div class="num">{{ currentData.total > 0 ? (currentData.person / currentData.total).toFixed(2) : '-' }}</div>
+            <div class="txt">人车比</div>
           </div>
           <div class="grid-item">
             <div class="num">{{ currentData.person }}</div>
@@ -139,196 +139,39 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import * as echarts from 'echarts'
 import MyChart from './myChart.vue'
 
-
-//跳转
+// 跳转到检修记录表 (右边)
 const goToForm1 = () => {
-  // 使用 window.open 在新标签页打开，以免覆盖当前大屏
-  // 你的目标地址
-  window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
-  // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
+  // 拼上 #/maintenance 路由，在新标签页打开
+  const targetUrl = window.location.origin + window.location.pathname + '#/maintenance';
+  window.open(targetUrl, '_blank');
 }
 
 // 跳转到表单 2 (左边)
 const goToForm2 = () => {
-  // 这里填入你表单2的地址，我先用百度代替演示
-  window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank'); 
-  // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank'); 
+  // 获取当前系统的主域名，并拼上 #/fault 路由，在新标签页打开
+  const targetUrl = window.location.origin + window.location.pathname + '#/fault';
+  window.open(targetUrl, '_blank'); 
 }
+
+
+// //跳转
+// const goToForm1 = () => {
+//   // 使用 window.open 在新标签页打开，以免覆盖当前大屏
+//   // 你的目标地址
+//   window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
+//   // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
+// }
+
+// // 跳转到表单 2 (左边)
+// const goToForm2 = () => {
+//   // 这里填入你表单2的地址，我先用百度代替演示
+//   window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank'); 
+//   // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank'); 
+// }
 // ==========================================
 // 1. 用户配置区域 (在此处添加/修改线路数据)
 // ==========================================
-const projectList = [
-  {
-    name: '广州18&22号线',
-    city: '广州',
-    coords: [113.3644, 22.9291], // 地图聚焦坐标
-    // opTime: '2021-09-28',        // 运营时间
-    total: 40,                   // 车辆总数
-    online: 40,                  // 上线数量
-    person: 204,                 // 人员数量
-    certify: 198,                  // 持证人数
-    // 故障数据: [牵引, 制动, 门控, 空调, 辅助]
-    // fault: { new: 2, closed: 5, distribution: [10, 5, 3, 2, 1] }, 
-    fault: { distribution: [1511, 41,97, 7192, 4688] }, 
-
-    // 30天故障趋势 (模拟数据，数组长度需一致)
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    // 维保评价: [技术, 质量, 响应, 成本, 安全] (0-100分)
-    evaluation: [95, 90, 98, 85, 100]
-  },
-  {
-    name: '广州10号线',
-    city: '广州',
-    coords: [113.3644, 23.9291], // 地图聚焦坐标
-    // opTime: '2021-09-28',        // 运营时间
-    total: 24,                   // 车辆总数
-    online: 24,                  // 上线数量
-    person: 120,                 // 人员数量
-    certify: 101,                  // 持证人数
-    // 故障数据: [牵引, 制动, 门控, 空调, 辅助]
-    fault: { new: 2, closed: 5, distribution: [10, 5, 3, 2, 1] }, 
-    // 30天故障趋势 (模拟数据，数组长度需一致)
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    // 维保评价: [技术, 质量, 响应, 成本, 安全] (0-100分)
-    evaluation: [95, 90, 98, 85, 100]
-  },
-  {
-    name: '广州11号线',
-    city: '广州',
-    coords: [114.3644, 22.9291], // 地图聚焦坐标
-    // opTime: '2021-09-28',        // 运营时间
-    total: 55,                   // 车辆总数
-    online: 41,                  // 上线数量
-    person: 171,                 // 人员数量
-    certify: 171,                  // 持证人数
-    // 故障数据: [牵引, 制动, 门控, 空调, 辅助]
-    fault: {  distribution: [32, 2, 4, 40, 72] }, 
-    // 30天故障趋势 (模拟数据，数组长度需一致)
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    // 维保评价: [技术, 质量, 响应, 成本, 安全] (0-100分)
-    evaluation: [95, 90, 98, 85, 100]
-  },
-  {
-    name: '广州12号线',
-    city: '广州',
-    coords: [114.3644, 23.9291], // 地图聚焦坐标
-    // opTime: '2021-09-28',        // 运营时间
-    total: 33,                   // 车辆总数
-    online: 23,                  // 上线数量
-    person: 124,                 // 人员数量
-    certify: 124,                  // 持证人数
-    // 故障数据: [牵引, 制动, 门控, 空调, 辅助]
-    fault: { new: 2, closed: 5, distribution: [10, 5, 3, 2, 1] }, 
-    // 30天故障趋势 (模拟数据，数组长度需一致)
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    // 维保评价: [技术, 质量, 响应, 成本, 安全] (0-100分)
-    evaluation: [95, 90, 98, 85, 100]
-  },
-  {
-    name: '深圳龙华有轨',
-    city: '深圳',
-    coords: [114.0379, 22.6431],
-    // opTime: '2017-10-28',
-    total: 20,
-    online: 15,
-    person: 25,
-    certify: 25,   
-    fault: { new: 5, closed: 3, distribution: [5, 2, 8, 1, 4] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [80, 82, 85, 90, 90]
-  },
-  {
-    name: '上海崇明线',
-    city: '上海',
-    coords: [121.6737, 31.4304],
-    // opTime: '2023-01-15',
-    total: 40,
-    online:0,
-    person: 0,
-    certify: 0,
-    fault: { new: 1, closed: 1, distribution: [2, 8, 1, 1, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [88, 85, 90, 92, 95]
-  },
-  {
-    name: '华为小火车',
-    city: '东莞',
-    coords: [113.88, 22.95],
-    // opTime: '2019-05-01',
-    total: 8,
-    online: 8,
-    person: 12,
-    certify:12,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  },
-  {
-    name: '黄石有轨电车',
-    city: '黄石',
-    coords: [114.341552, 30.546222],
-    // opTime: '2019-05-01',
-    total: 0,
-    online: 0,
-    person: 0,
-    certify:0,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  },
-  {
-    name: '丽江有轨电车',
-    city: '丽江',
-    coords: [102.709372,25.046432],
-    // opTime: '2019-05-01',
-    total: 0,
-    online: 0,
-    person: 0,
-    certify:0,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  },
-  {
-    name: '黄埔1有轨电车',
-    city: '广州',
-    coords:  [113.3644, 22.9291],
-    // opTime: '2019-05-01',
-    total: 0,
-    online: 0,
-    person: 0,
-    certify:0,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  },
-  {
-    name: '文山有轨电车',
-    city: '文山',
-    coords:  [102.709372,25.046432],
-    // opTime: '2019-05-01',
-    total: 0,
-    online: 0,
-    person: 0,
-    certify:0,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  },
-  {
-    name: '黄埔2有轨电车',
-    city: '广州',
-    coords:  [113.3644, 22.9291],
-    // opTime: '2019-05-01',
-    total: 0,
-    online: 0,
-    person: 0,
-    certify:0,
-    fault: { new: 0, closed: 0, distribution: [0, 0, 0, 0, 0] },
-    trend30Days: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    evaluation: [98, 98, 99, 95, 99]
-  }
-]
+const projectList = ref([])
 
 // ==========================================
 // 2. 逻辑处理区域
@@ -342,25 +185,30 @@ let timer = null
 
 // --- 自动计算“全国总览”数据 ---
 const overviewData = computed(() => {
+  // 防御性判断：如果没有数据，返回空结构
+  if (projectList.value.length === 0) return {}
+
   let totalVehicles = 0
   let totalOnline = 0
   let totalPerson = 0
   let totalCertify = 0
-  let rateSum = 0
   let faultNew = 0
   let faultClosed = 0
   let faultDistSum = [0,0,0,0,0]
   let trendSum = new Array(30).fill(0)
   let evalSum = [0,0,0,0,0]
 
-  projectList.forEach(p => {
+  // 注意：这里改成了 projectList.value.forEach
+  projectList.value.forEach(p => {
     totalVehicles += p.total
-    totalOnline += p.online
+    totalOnline += p.online || 0
     totalPerson += p.person
     totalCertify += p.certify 
-    // rateSum += p.rate
-    faultNew += p.fault.new
-    faultClosed += p.fault.closed
+    
+    // 如果你有 new 和 closed 字段可以在这里加，目前先给默认值0
+    faultNew += (p.fault.new || 0)
+    faultClosed += (p.fault.closed || 0)
+    
     // 数组累加
     p.fault.distribution.forEach((v, i) => faultDistSum[i] += v)
     p.trend30Days.forEach((v, i) => trendSum[i] += v)
@@ -368,11 +216,11 @@ const overviewData = computed(() => {
   })
 
   // 评价取平均分
-  const avgEval = evalSum.map(v => Math.round(v / projectList.length))
+const avgEval = evalSum.map(v => Math.round(v / projectList.value.length))
 
   return {
     name: '全国总览',
-    coords: null, // 总览时不聚焦
+    coords: null, 
     opTime: '-',
     total: totalVehicles,
     online: totalOnline,
@@ -386,83 +234,47 @@ const overviewData = computed(() => {
 
 // --- 获取当前展示的数据 ---
 const currentData = computed(() => {
+  if (projectList.value.length === 0) return {} // 防御性判断
   if (isOverview.value) return overviewData.value
-  return projectList[currentIndex.value]
+  return projectList.value[currentIndex.value]
 })
-
-// --- 地图坐标点 (显示所有项目的位置) ---
-// const allPoints = computed(() => {
-//   return projectList.map(item => ({
-//     name: item.name,
-//     value: [...item.coords, 10]
-//   }))
-// })
 
 // --- 地图坐标点 (智能分散 + 防闪烁处理) ---
 const allPoints = computed(() => {
-  // 1. 分组：找出所有重叠的点
   const groups = {};
   
-  projectList.forEach((item, index) => {
-    // 跳过coords为null或undefined的项目，以及coords不是数组或长度小于2的项目
-    if (!item.coords || !Array.isArray(item.coords) || item.coords.length < 2) {
-      return;
-    }
-    
-    // 生成唯一键值，用于判断坐标是否相同
+  // 注意：这里改成了 projectList.value.forEach
+  projectList.value.forEach((item, index) => {
+    if (!item.coords || !Array.isArray(item.coords) || item.coords.length < 2) return;
     const key = item.coords.join(',');
-    
-    if (!groups[key]) {
-      groups[key] = [];
-    }
+    if (!groups[key]) groups[key] = [];
     groups[key].push({ ...item, _originalIndex: index });
   });
 
   const result = [];
-
-  // 2. 处理每一组
   Object.keys(groups).forEach(key => {
     const items = groups[key];
     const count = items.length;
-    
-    // 获取原始中心坐标
     const [centerLng, centerLat] = key.split(',').map(Number);
 
     items.forEach((item, i) => {
       let finalLng = centerLng;
       let finalLat = centerLat;
       
-      // === 核心逻辑：只有当该坐标点下有多个项目时，才进行分散 ===
       if (count > 1) {
-        // 环形分散算法
-        // 角度：将 360 度平均分配给每个点
         const angle = (i / count) * Math.PI * 2;
-        
-        // 半径：0.15 度大约对应 15km 左右（在全国地图上看着比较合适）
-        // 你可以根据视觉效果调整这个 0.15
         const radius = 0.15; 
-        
         finalLng = centerLng + Math.cos(angle) * radius;
         finalLat = centerLat + Math.sin(angle) * radius;
       }
-
-      // === 解决 Z-fighting (深度冲突) ===
-      // 给高度 (10) 加上一个极小的偏移量 (i * 0.01)
-      // 这样每个图标的高度在显卡看来都是独一无二的 (10.01, 10.02...)
-      // 显卡渲染时就能完美区分前后关系，不再闪烁
       const altitude = 5.2 + (i * 0.05);
-
       result.push({
         name: item.name,
-        // 构造 ECharts 需要的 [经度, 纬度, 高度]
         value: [finalLng, finalLat, altitude],
-        // 如果需要点击事件获取原始数据，可以在这里带上
-        // rawData: item 
         total: item.total,
       });
     });
   });
-
   return result;
 });
 
@@ -571,11 +383,11 @@ const updateCharts = () => {
       tooltip: {},
       radar: {
         indicator: [
-          { name: '技术', max: 100 },
+          { name: '安全', max: 100 },
           { name: '质量', max: 100 },
-          { name: '响应', max: 100 },
-          { name: '成本', max: 100 },
-          { name: '安全', max: 100 }
+          { name: '生产', max: 100 },
+          { name: '技术', max: 100 },
+          { name: '资产', max: 100 }
         ],
         center: ['50%', '50%'],
         radius: '65%',
@@ -620,15 +432,54 @@ const startCarousel = () => {
 
 watch(currentIndex, updateCharts)
 
-onMounted(() => {
-  nextTick(() => {
-    pieChart = echarts.init(faultPieRef.value)
-    lineChart = echarts.init(trendLineRef.value)
-    radarChart = echarts.init(evalRadarRef.value)
-    initChartsOptions() // 初始化空Option
-    updateCharts()      // 填入数据
-    startCarousel()
-  })
+onMounted(async () => {
+  try {
+    // 1. 拉取 JSON 文件 (加时间戳防止浏览器缓存老数据)
+    const timestamp = new Date().getTime()
+    // 请确保线上环境或 public 目录下有这个 data.json 文件
+    const res = await fetch(`/linedata.json?t=${timestamp}`) 
+    
+    if (!res.ok) {
+      throw new Error('无法读取数据文件')
+    }
+    
+    const rawData = await res.json()
+
+    // 2. 格式化数据：将在线工具转出来的字符串，切割成图表需要的数组和数字
+    projectList.value = rawData.map(item => {
+      return {
+        name: item.name || '未命名线路',
+        city: item.city || '未知',
+        // 解析坐标，将 "113.36,22.92" 转成 [113.36, 22.92]
+        coords: item.coords ? item.coords.split(',').map(Number) : [116.40, 39.90], 
+        total: Number(item.total) || 0,
+        person: Number(item.person) || 0,
+        certify: Number(item.certify) || 0,
+        // 解析故障分布，将 "1511,41,97,7192,4688" 转成数组
+        fault: { 
+          distribution: item.fault_dist ? item.fault_dist.split(',').map(Number) : [0, 0, 0, 0, 0] 
+        },
+        // 解析雷达图评价
+        evaluation: item.evaluation ? item.evaluation.split(',').map(Number) : [0, 0, 0, 0, 0],
+        // 如果没有写30天趋势，默认塞30个0进去，防止报错
+        trend30Days: item.trend30Days ? item.trend30Days.split(',').map(Number) : new Array(30).fill(0)
+      }
+    })
+
+    // 3. 数据处理完毕后，再去初始化 ECharts 和轮播
+    nextTick(() => {
+      pieChart = echarts.init(faultPieRef.value)
+      lineChart = echarts.init(trendLineRef.value)
+      radarChart = echarts.init(evalRadarRef.value)
+      initChartsOptions()
+      updateCharts()
+      startCarousel()
+    })
+
+  } catch (error) {
+    console.error('获取或解析大屏数据失败:', error)
+    // 这里可以加一个 alert 或者让 projectList 赋一个默认的空假数据以防页面崩溃
+  }
 })
 
 onUnmounted(() => {
@@ -694,7 +545,7 @@ const initChartsOptions = () => {
 .main-layout { position: relative; width: 100%; height: 100%; overflow: hidden; color: #fff; background: transparent; }
 .center-column { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 .side-column { position: absolute; top: 10px; bottom: 20px; width: 26%; z-index: 10; display: flex; flex-direction: column; gap: 15px; pointer-events: none;text-shadow: 0 2px 2px #000000, 
-    0 0 8px rgba(0, 0, 0, 0.8); }
+    0 0 8px rgba(0, 0, 0, 0.8);top: 80px;z-index: 10; }
 
 .left-col { left: 20px; }
 .right-col { right: 20px; }

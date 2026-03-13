@@ -6,106 +6,10 @@
     "certify": "198",
     "total": "40",
     "online": "",
-    "coords": "113.3644,22.9291",
-    "fault_dist": "225,264,9",
+    "coords": "113.32, 23.13",
+    "fault_dist": "225,264,9,0,0",
     "evaluation": "90.5,97.86,92,100,100",
     "trend30Days": "7,12,16,3,4,7,4,6,1,1,1,1,8,3,2,4,9,9,8,3,12,6,21,7,13,12,13,6,4,3"
-  },
-  {
-    "name": "深圳龙华有轨电车",
-    "city": "深圳",
-    "person": "32",
-    "certify": "32",
-    "total": "20",
-    "online": "0.4",
-    "coords": "114.0379, 22.6431",
-    "fault_dist": "460,0,11,163,6",
-    "evaluation": "",
-    "trend30Days": "3,0,3,3,2,2,1,1,1,0,1,5,1,1,2,1,0,1,1,2,1,0,3,5,2,0,0,1,0"
-  },
-  {
-    "name": "华为小火车",
-    "city": "东莞",
-    "person": "12",
-    "certify": "12",
-    "total": "8",
-    "online": "",
-    "coords": "113.88, 22.95",
-    "fault_dist": "145,0,23,119,3",
-    "evaluation": "",
-    "trend30Days": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0"
-  },
-  {
-    "name": "上海崇明线",
-    "city": "上海",
-    "person": "0",
-    "certify": "0",
-    "total": "40",
-    "online": "",
-    "coords": "121.6737, 31.4304",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
-  },
-  {
-    "name": "黄石有轨电车",
-    "city": "黄石",
-    "person": "0",
-    "certify": "0",
-    "total": "0",
-    "online": "",
-    "coords": "114.341552, 30.546222",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
-  },
-  {
-    "name": "丽江有轨电车",
-    "city": "丽江",
-    "person": "0",
-    "certify": "0",
-    "total": "0",
-    "online": "",
-    "coords": "102.709372,25.046432",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
-  },
-  {
-    "name": "文山有轨电车",
-    "city": "文山",
-    "person": "0",
-    "certify": "0",
-    "total": "0",
-    "online": "",
-    "coords": "102.709372,25.046432",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
-  },
-  {
-    "name": "黄埔1有轨电车",
-    "city": "广州",
-    "person": "0",
-    "certify": "0",
-    "total": "0",
-    "online": "",
-    "coords": "113.3644,22.9295",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
-  },
-  {
-    "name": "黄埔2有轨电车",
-    "city": "广州",
-    "person": "0",
-    "certify": "0",
-    "total": "0",
-    "online": "",
-    "coords": "113.3644,22.9296",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
   },
   {
     "name": "广州市轨道交通十号线",
@@ -114,22 +18,22 @@
     "certify": "101",
     "total": "24",
     "online": "",
-    "coords": "113.3644,22.9292",
-    "fault_dist": "",
+    "coords": "113.32, 23.12",
+    "fault_dist": "5",
     "evaluation": "",
-    "trend30Days": ""
+    "trend30Days": "13,18,11,10,3,4,15,1,0,9,5,7,0,17,8,1,7,18,17,9,3,4,27,0,8,0,12,0,33,18"
   },
   {
     "name": "广州市轨道交通十一号线",
     "city": "广州",
-    "person": "171",
-    "certify": "171",
+    "person": "173",
+    "certify": "173",
     "total": "55",
     "online": "",
-    "coords": "113.3644,22.9293",
+    "coords": "113.26, 23.13",
     "fault_dist": "",
     "evaluation": "",
-    "trend30Days": ""
+    "trend30Days": "2,0,0,2,0,1,0,0,1,1,0,0,1,0,0,0,1,0,0,3,0,0,0,1,0,4,0,0,0,0"
   },
   {
     "name": "广州市轨道交通十二号线",
@@ -138,7 +42,91 @@
     "certify": "124",
     "total": "33",
     "online": "",
-    "coords": "113.3644,22.9294",
+    "coords": "113.39, 23.08",
+    "fault_dist": "",
+    "evaluation": "",
+    "trend30Days": ""
+  },
+  {
+    "name": "深圳龙华有轨电车",
+    "city": "深圳",
+    "person": "32",
+    "certify": "32",
+    "total": "20",
+    "online": "0.4",
+    "coords": "114.00, 22.73",
+    "fault_dist": "460,0,11,163,6",
+    "evaluation": "",
+    "trend30Days": "3,0,3,3,2,2,1,1,1,0,1,5,1,1,2,1,0,1,1,2,1,0,3,5,2,0,0,1,0,4"
+  },
+  {
+    "name": "上海崇明线",
+    "city": "上海",
+    "person": "暂未进入维保",
+    "certify": "",
+    "total": "",
+    "online": "",
+    "coords": "121.50, 31.33",
+    "fault_dist": "",
+    "evaluation": "",
+    "trend30Days": ""
+  },
+  {
+    "name": "黄石有轨电车",
+    "city": "黄石",
+    "person": "48",
+    "certify": "48",
+    "total": "30",
+    "online": "0.36",
+    "coords": "115.03, 30.20",
+    "fault_dist": "0,0,0,574,0",
+    "evaluation": "",
+    "trend30Days": "0,1,1,2,3,0,1,0,3,3,0,1,1,1,0,1,2,2,1,2,0,1,1,0,2,1,1,2,0"
+  },
+  {
+    "name": "丽江有轨电车",
+    "city": "丽江",
+    "person": "16",
+    "certify": "16",
+    "total": "16",
+    "online": "0.33",
+    "coords": "100.25, 26.87",
+    "fault_dist": "0,0,0,2404,0",
+    "evaluation": "",
+    "trend30Days": "1,0,1,2,0,0,1,1,0,1,2,0,1,1,1,1,3,0,0,0,1,2,0,1,2,1,0,3,1"
+  },
+  {
+    "name": "黄埔1有轨电车",
+    "city": "广州",
+    "person": "20",
+    "certify": "20",
+    "total": "16",
+    "online": "0.31",
+    "coords": "113.45, 23.18",
+    "fault_dist": "0,0,0,176,0",
+    "evaluation": "",
+    "trend30Days": "10,2,5,4,4,5,1,0,1,2,2,2,4,3,0,1,2,1,3,3,2,0,1,3,6,6,5,3,0,5"
+  },
+  {
+    "name": "文山有轨电车",
+    "city": "丘北",
+    "person": "21",
+    "certify": "21",
+    "total": "15",
+    "online": "0.35",
+    "coords": "104.23, 23.42",
+    "fault_dist": "0,0,15,1315,0",
+    "evaluation": "",
+    "trend30Days": "2,5,5,4,3,5,2,2,2,2,2,3,2,2,2,2,4,4,5,4,2,2,2,2,4,5,2,3,2,5"
+  },
+  {
+    "name": "黄埔2有轨电车",
+    "city": "广州",
+    "person": "12",
+    "certify": "12",
+    "total": "12",
+    "online": "",
+    "coords": "113.44, 23.19",
     "fault_dist": "",
     "evaluation": "",
     "trend30Days": ""
@@ -150,7 +138,7 @@
     "certify": "",
     "total": "",
     "online": "",
-    "coords": "121.6737, 31.4304",
+    "coords": "121.75, 31.05",
     "fault_dist": "",
     "evaluation": "",
     "trend30Days": ""
@@ -162,7 +150,7 @@
     "certify": "",
     "total": "",
     "online": "",
-    "coords": "113.3644,22.9295",
+    "coords": "113.57, 22.28",
     "fault_dist": "",
     "evaluation": "",
     "trend30Days": ""
@@ -174,19 +162,31 @@
     "certify": "",
     "total": "",
     "online": "",
-    "coords": "114.3896,30.6628",
+    "coords": "114.22, 30.58",
     "fault_dist": "",
     "evaluation": "",
     "trend30Days": ""
   },
   {
+    "name": "华为小火车",
+    "city": "东莞",
+    "person": "12",
+    "certify": "12",
+    "total": "8",
+    "online": "0.75",
+    "coords": "113.95, 22.58",
+    "fault_dist": "145,0,23,119,3",
+    "evaluation": "",
+    "trend30Days": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0"
+  },
+  {
     "name": "宁象市域线",
     "city": "宁波",
-    "person": "",
+    "person": "暂未进入维保",
     "certify": "",
     "total": "",
     "online": "",
-    "coords": "121.5967,29.6466",
+    "coords": "121.59, 29.64",
     "fault_dist": "",
     "evaluation": "",
     "trend30Days": ""
@@ -199,9 +199,9 @@
     "total": "24",
     "online": "0.5",
     "coords": "16.37, 48.20",
-    "fault_dist": "",
-    "evaluation": "",
-    "trend30Days": ""
+    "fault_dist": "69,0,0,409,36",
+    "evaluation": "95,98,96,100,100",
+    "trend30Days": "3,11,4,11,3,1,2,2,3,6,5,0,0,0,2,3,2,3,12,1,1,2,2,6,2,1,1,0,3,4"
   },
   {
     "name": "捷克动车组",
@@ -211,8 +211,8 @@
     "total": "18",
     "online": "0.7",
     "coords": "14.42, 50.07",
-    "fault_dist": "",
-    "evaluation": "",
+    "fault_dist": "QW,0,0,QW,QW",
+    "evaluation": "94,96,95,97,99",
     "trend30Days": ""
   },
   {
@@ -223,8 +223,8 @@
     "total": "2",
     "online": "3.5",
     "coords": "19.04, 47.49",
-    "fault_dist": "",
-    "evaluation": "",
+    "fault_dist": "0,0,0,LHB,0",
+    "evaluation": "93,95,92,95,98",
     "trend30Days": ""
   },
   {
@@ -235,8 +235,8 @@
     "total": "2",
     "online": "3.5",
     "coords": "19.04, 47.50",
-    "fault_dist": "",
-    "evaluation": "",
+    "fault_dist": "0,0,0,LHB,0",
+    "evaluation": "93,95,92,95,98",
     "trend30Days": ""
   }
 ]

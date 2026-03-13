@@ -223,7 +223,7 @@ const avgEval = evalSum.map(v => Math.round(v / projectList.value.length))
     coords: null, 
     opTime: '-',
     total: totalVehicles,
-    online: totalOnline,
+    online: (totalOnline/projectList.value.length).toFixed(2),
     person: totalPerson,
     certify: totalCertify,
     fault: { new: faultNew, closed: faultClosed, distribution: faultDistSum },
@@ -413,21 +413,59 @@ const updateCharts = () => {
 }
 
 // 轮播逻辑
-const startCarousel = () => {
-  if (timer) clearInterval(timer)
-  timer = setInterval(() => {
-    let next = currentIndex.value + 1
-    if (next >= projectList.length) next = -1
-    currentIndex.value = next
+// const startCarousel = () => {
+//   if (timer) clearInterval(timer)
+//   timer = setInterval(() => {
+//     let next = currentIndex.value + 1
+//     if (next >= projectList.length) next = -1
+//     currentIndex.value = next
     
-    // 列表滚动跟随
-    if (currentIndex.value >= 0 && listContainerRef.value) {
-      listContainerRef.value.scrollTo({
-        top: currentIndex.value * 60, // 假设行高60
-        behavior: 'smooth'
-      })
+//     // 列表滚动跟随
+//     if (currentIndex.value >= 0 && listContainerRef.value) {
+//       listContainerRef.value.scrollTo({
+//         top: currentIndex.value * 60, // 假设行高60
+//         behavior: 'smooth'
+//       })
+//     }
+//   }, 5000)
+// }
+
+//
+// 修改后的永无止境轮播逻辑
+const startCarousel = () => {
+  if (timer) clearInterval(timer);
+  
+  timer = setInterval(() => {
+    // 1. 获取项目总数
+    const totalCount = projectList.value.length;
+    
+    // 如果没有数据，则不执行轮播
+    if (totalCount === 0) return;
+
+    // 2. 计算下一个索引
+    // 逻辑：-1(总览) -> 0 -> 1 -> ... -> N-1 -> 回到 -1
+    let next = currentIndex.value + 1;
+    
+    if (next >= totalCount) {
+      next = -1; // 回到全国总览
     }
-  }, 5000)
+    
+    currentIndex.value = next;
+    
+    // 3. 列表滚动跟随 (增强健壮性)
+    if (listContainerRef.value) {
+      if (currentIndex.value === -1) {
+        // 回到总览时，滚动条置顶
+        listContainerRef.value.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        // 假设每行高度约为 45px (根据 css padding 和 line-height 计算)
+        listContainerRef.value.scrollTo({
+          top: currentIndex.value * 45, 
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, 5000); // 每 5 秒切换一次
 }
 
 watch(currentIndex, updateCharts)

@@ -390,7 +390,7 @@ const renderGlobe = () => {
           distance: 10,     // 文字离图标的距离 
           textStyle: { 
             color: '#fff', 
-            fontSize: 24,       // 字号大一点，清晰 
+            fontSize: 32,       // 字号大一点，清晰 
             fontWeight: 'bold', 
             fontFamily: 'Microsoft YaHei', 
             // 给文字加个半透明黑底，防止被地球纹理干扰，看不清 
@@ -725,7 +725,7 @@ const updateView = (coords) => {
         position: 'top',
         distance: 10,
         textStyle: {
-          color: '#fff', fontSize: 24, fontWeight: 'bold',
+          color: '#fff', fontSize: 32, fontWeight: 'bold',
           backgroundColor: 'rgba(0,0,0,0.7)', padding: [8, 15],
           borderRadius: 6, borderColor: '#00ffff', borderWidth: 1
         }

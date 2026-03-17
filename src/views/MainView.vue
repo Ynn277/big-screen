@@ -628,7 +628,9 @@ const initChartsOptions = () => {
   border-radius: 8px; /* 给每个小模块切出圆角 */
   padding: 15px;      /* 保证里面的文字和图表不会贴着边框 */
 }
-.panel-title { color: #00e4ff; font-size: 18px; font-weight: bold; margin-bottom: 12px; padding-left: 10px; border-left: 4px solid #00e4ff; text-shadow: 0 0 10px rgba(0, 228, 255, 0.8); }
+.panel-title { color: #00e4ff; font-size: 26px; font-weight: bold; margin-bottom: 12px; padding-left: 10px; border-left: 4px solid #00e4ff;
+   /* text-shadow: 0 0 10px rgba(0, 228, 255, 0.8);  */
+  }
 
 /* 左侧：核心指标面板 */
 .overview-panel { flex: 0 0 auto; }
@@ -650,11 +652,11 @@ const initChartsOptions = () => {
   border: none; /* 去掉边框 */
   /* === 修改结束 === */
 }
-.grid-item .num { font-size: 24px; font-weight: bold; font-family: 'Arial'; color: #fff; text-shadow: 
+.grid-item .num { font-size: 28px; font-weight: bold; font-family: 'Arial'; color: #fff; text-shadow: 
     0 2px 2px #000000, 
     0 0 8px rgba(0, 0, 0, 0.8); }
 .grid-item .num.highlight { color: #00e4ff; }
-.grid-item .txt { font-size: 12px; color: #b0cbe9; margin-top: 4px; }
+.grid-item .txt { font-size: 16px; color: #b0cbe9; margin-top: 4px; }
 
 /* 颜色类 */
 .c-green { color: #00ff72 !important; }
@@ -685,6 +687,7 @@ const initChartsOptions = () => {
 
 /* 项目行基础样式 */
 .project-row { 
+  font-size: 17px;
   position: relative;
   padding: 10px 15px; /* 增加高度，看起来像按钮 */
   border-radius: 2px; 
@@ -705,8 +708,9 @@ const initChartsOptions = () => {
 .row-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #dbeeff; }
 /* .active-row .p-name { color: #fff; text-shadow: 0 0 5px #00e4ff; font-weight: bold; } */
 .active-row .p-name { 
+  font-size: 18px;
   color: #fff; /* 选中时文字变白 */
-  text-shadow: 0 0 5px rgba(0, 228, 255, 0.8); /* 文字发光 */
+  /* text-shadow: 0 0 5px rgba(0, 228, 255, 0.8); 文字发光 */
   font-weight: bold;
   transform: translateX(5px); /* 选中时文字稍微右移一点，增加动感 */
 }

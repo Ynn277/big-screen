@@ -61,7 +61,7 @@
 
 /* 标题文字样式：确保在透明背景下依然清晰 */
 .title-text {
-  font-size: 32px;
+  font-size: 38px;
   font-weight: bold;
   margin: 0 15px; 
   white-space: nowrap; 

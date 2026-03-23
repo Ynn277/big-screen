@@ -506,7 +506,7 @@ const startCarousel = () => {
 const goToProject = (item, index) => {
   currentIndex.value = index;
   if (item.name.indexOf("十一号线") !== -1) {
-    window.open("http://localhost:8000", "_blank");
+    window.open(`http://${window.location.hostname}:9810`, "_blank");
   }
 };
 watch(currentIndex, updateCharts);

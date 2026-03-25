@@ -247,6 +247,7 @@ const allPoints = computed(() => {
         person: item.person,
         online: item.online,
         certify: item.certify,
+        _originalIndex: item._originalIndex,
       });
     });
   });

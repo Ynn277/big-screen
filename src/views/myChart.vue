@@ -450,13 +450,6 @@ const renderGlobe = () => {
               align: "left",
               padding: [0, 0, 8, 0],
             },
-            // hr: {
-            //   borderColor: "rgba(0, 228, 255, 0.3)",
-            //   width: "100%",
-            //   borderWidth: 0.5,
-            //   height: 0,
-            //   padding: [0, 0, 8, 0],
-            // },
             label: {
               color: "#b0cbe9",
               fontSize: 18,
@@ -473,12 +466,35 @@ const renderGlobe = () => {
             },
           },
         },
+
+        
+
       },
 
+      
 
         data: [], 
         animation: false 
       },
+
+      {
+        type: "scatter3D",
+        coordinateSystem: "globe",
+        blendMode: "source-over", 
+        symbol: "circle",
+        symbolSize: 25, 
+        zlevel: 99, 
+        itemStyle: { 
+          color: "#33DFFF", 
+          opacity: 0.6, 
+          borderWidth: 4, 
+          borderColor: "rgba(51, 223, 255, 0.3)" 
+        },
+        label: { show: false },
+        data: [], // 初始为空
+        animation: false 
+      },
+      
     ],
   };
   myChart.value.setOption(option);
@@ -582,6 +598,24 @@ const updateView = (coords) => {
     }
   }
 
+  let historyPinData = [];
+  if (!isOverview && Array.isArray(props.allPoints)) {
+    // 找到当前高亮的项目
+    const targetPoint = props.allPoints.find((p) => p.name === props.activeName);
+    
+    // 确保找到了，并且它具有原始排序索引
+    if (targetPoint && targetPoint._originalIndex !== undefined) {
+      const currentIdx = targetPoint._originalIndex;
+      
+      // 筛选出所有 原始索引 < 当前索引 的项目作为历史足迹
+      historyPinData = props.allPoints
+        .filter(p => p._originalIndex !== undefined && p._originalIndex < currentIdx)
+        .map(p => ({
+          name: p.name,
+          value: [p.value[0], p.value[1], 0.5] // 保持和主气泡一样的高度
+        }));
+    }
+  }
   
 
   // =========================================================
@@ -729,7 +763,25 @@ const updateView = (coords) => {
         },
       },
       data: pinData, // 有数据就显示，没数据([])就自动隐藏
+    },
+
+    {
+      type: "scatter3D",
+      coordinateSystem: "globe",
+      name: "History_Pin",
+      symbol: "circle",
+      symbolSize: 25, 
+      zlevel: 99,     // 层级略低于当前主气泡(100)，防止遮挡当前的高亮弹窗
+      itemStyle: { 
+        color: "#33DFFF", 
+        opacity: 0.6, // 透明度设低一点，让历史点稍暗，突出当前正在看的主气泡
+        borderWidth: 4,   
+        borderColor: "rgba(51, 223, 255, 0.3)" 
+      },
+      label: { show: false }, // 🚀 关键：关闭弹窗显示
+      data: historyPinData // 传入计算好的历史点数据
     }
+
   ];
 
   // 5. 应用配置

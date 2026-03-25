@@ -1,12 +1,14 @@
 <template>
   <div class="main-layout">
+
+ 
     <!-- <div class="click-zone left-zone" @click="goToForm2">
-      <div class="hover-tip">前往 故障记录表</div>
+      <div class="hover-tip">前往 故障记录表</div> 
     </div> -->
 
-    <div class="click-zone right-zone" @click="goToForm1">
-      <div class="hover-tip">前往 检修记录表</div>
-    </div>
+    <!-- <div class="click-zone right-zone" @click="goToForm1">
+       <div class="hover-tip">前往 检修记录表</div>
+    </div> -->
 
     <div class="side-column left-col">
       <div class="sub-panel overview-panel">
@@ -46,33 +48,7 @@
         </div>
       </div>
 
-      <!-- <div class="sub-panel list-panel">
-        <div class="panel-title">| 项目列表</div>
-        <div class="scroll-container" ref="listContainerRef">
-          <div 
-            class="project-row" 
-            v-for="(item, index) in projectList" 
-            :key="index"
-            :class="{ 'active-row': currentIndex === index }"
-          >
-            <div class="row-info">
-              <span class="p-name">{{ item.name }}</span>
-              <span class="p-status">
-                <span class="dot" :style="{background: item.rate > 90 ? '#00ff72' : '#ffba00'}"></span>
-                {{ item.rate }}%
-              </span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-bar" 
-                   :style="{ 
-                     width: (item.online / item.total * 100) + '%',
-                     background: currentIndex === index ? 'linear-gradient(90deg, #005bea, #00c6fb)' : 'rgba(255,255,255,0.2)'
-                   }">
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
+      
       <div class="sub-panel list-panel">
         <div class="panel-title">| 项目列表</div>
         <div class="scroll-container" ref="listContainerRef">
@@ -143,6 +119,7 @@ import * as echarts from "echarts";
 import MyChart from "./myChart.vue";
 
 // 跳转到检修记录表 (右边)
+
 const goToForm1 = () => {
   // 拼上 #/maintenance 路由，在新标签页打开
   const targetUrl =
@@ -158,23 +135,6 @@ const goToForm2 = () => {
   window.open(targetUrl, "_blank");
 };
 
-// //跳转
-// const goToForm1 = () => {
-//   // 使用 window.open 在新标签页打开，以免覆盖当前大屏
-//   // 你的目标地址
-//   window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
-//   // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bda5a76dd0001?pure=true', '_blank');
-// }
-
-// // 跳转到表单 2 (左边)
-// const goToForm2 = () => {
-//   // 这里填入你表单2的地址，我先用百度代替演示
-//   window.open('https://frp-way.com:64662/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank');
-//   // window.open('http://localhost:3100/online/cgformList/402809819bd4f946019bdf39cad50004?pure=true', '_blank');
-// }
-// ==========================================
-// 1. 用户配置区域 (在此处添加/修改线路数据)
-// ==========================================
 const projectList = ref([]);
 
 // ==========================================
@@ -187,54 +147,61 @@ const isOverview = computed(() => currentIndex.value === -1);
 const listContainerRef = ref(null);
 let timer = null;
 
+
+
 // --- 自动计算“全国总览”数据 ---
 const overviewData = computed(() => {
-  // 防御性判断：如果没有数据，返回空结构
-  if (projectList.value.length === 0) return {};
+  // 防御性判断
+  if (projectList.value.length === 0) return {}
 
-  let totalVehicles = 0;
-  let totalOnline = 0;
-  let totalPerson = 0;
-  let totalCertify = 0;
-  let faultNew = 0;
-  let faultClosed = 0;
-  let faultDistSum = [0, 0, 0, 0, 0];
-  let trendSum = new Array(30).fill(0);
-  let evalSum = [0, 0, 0, 0, 0];
+  let totalVehicles = 0
+  let totalOnline = 0
+  let totalPerson = 0
+  let totalCertify = 0
+  
+  let validOnlineCount = 0 // 用于记录有效的人车比数据条数，用来算平均值
 
-  // 注意：这里改成了 projectList.value.forEach
-  projectList.value.forEach((p) => {
-    totalVehicles += p.total;
-    totalOnline += p.online || 0;
-    totalPerson += p.person;
-    totalCertify += p.certify;
+  let faultNew = 0
+  let faultClosed = 0
+  let faultDistSum = [0,0,0,0,0]
+  let trendSum = new Array(30).fill(0)
+  let evalSum = [0,0,0,0,0]
 
-    // 如果你有 new 和 closed 字段可以在这里加，目前先给默认值0
-    faultNew += p.fault.new || 0;
-    faultClosed += p.fault.closed || 0;
+  projectList.value.forEach(p => {
+    // 🌟 修改：只有当值不是 '--' 时，才进行数字累加
+    if (p.total !== '--') totalVehicles += p.total
+    if (p.person !== '--') totalPerson += p.person
+    if (p.certify !== '--') totalCertify += p.certify 
+    
+    if (p.online !== '--') {
+      totalOnline += p.online
+      validOnlineCount++ // 记录有几条有效的人车比数据
+    }
+    
+    faultNew += (p.fault.new || 0)
+    faultClosed += (p.fault.closed || 0)
+    
+    p.fault.distribution.forEach((v, i) => faultDistSum[i] += v)
+    p.trend30Days.forEach((v, i) => trendSum[i] += v)
+    p.evaluation.forEach((v, i) => evalSum[i] += v)
+  })
 
-    // 数组累加
-    p.fault.distribution.forEach((v, i) => (faultDistSum[i] += v));
-    p.trend30Days.forEach((v, i) => (trendSum[i] += v));
-    p.evaluation.forEach((v, i) => (evalSum[i] += v));
-  });
-
-  // 评价取平均分
-  const avgEval = evalSum.map((v) => Math.round(v / projectList.value.length));
+  const avgEval = evalSum.map(v => Math.round(v / projectList.value.length))
 
   return {
-    name: "全国总览",
-    coords: null,
-    opTime: "-",
+    name: '全国总览',
+    coords: null, 
+    opTime: '-',
     total: totalVehicles,
-    online: (totalOnline / projectList.value.length).toFixed(2),
+    // 🌟 修改：如果没有有效人车比，直接返回 '--'，否则计算平均
+    online: validOnlineCount > 0 ? (totalOnline / validOnlineCount).toFixed(2) : '--',
     person: totalPerson,
     certify: totalCertify,
     fault: { new: faultNew, closed: faultClosed, distribution: faultDistSum },
     trend30Days: trendSum,
-    evaluation: avgEval,
-  };
-});
+    evaluation: avgEval
+  }
+})
 
 // --- 获取当前展示的数据 ---
 const currentData = computed(() => {
@@ -277,6 +244,9 @@ const allPoints = computed(() => {
         name: item.name,
         value: [finalLng, finalLat, altitude],
         total: item.total,
+        person: item.person,
+        online: item.online,
+        certify: item.certify,
       });
     });
   });
@@ -324,12 +294,6 @@ const updateCharts = () => {
         textStyle: {
           color: "#dbeeff", // 文字颜色
           fontSize: 12,
-          textBorderColor: "#000000", // 文字描边颜色
-          textBorderWidth: 2, // 描边宽度 (加粗效果)
-
-          textShadowColor: "#000000", // 阴影颜色
-          textShadowBlur: 5, // 阴影模糊
-          textShadowOffsetY: 2,
         },
         itemWidth: 10, // 图例图标宽度
         itemHeight: 10,
@@ -377,10 +341,7 @@ const updateCharts = () => {
         splitLine: { show: false },
         axisLabel: {
           color: "#b0cbe9",
-          textBorderColor: "#000000",
-          textBorderWidth: 2,
-          textShadowColor: "#000000",
-          textShadowBlur: 3,
+          
         },
       },
       series: [
@@ -412,22 +373,12 @@ const updateCharts = () => {
           { name: "技术", max: 100 },
           { name: "资产", max: 100 },
         ],
-        center: ["50%", "50%"],
-        radius: "65%",
-        splitArea: {
-          areaStyle: { color: ["rgba(0,228,255,0.1)", "rgba(0,228,255,0)"] },
-        },
-        axisLine: { lineStyle: { color: "rgba(255,255,255,0.3)" } },
-        splitLine: { lineStyle: { color: "rgba(255,255,255,0.1)" } },
-        name: {
-          textStyle: {
-            color: "#b0cbe9",
-            textBorderColor: "#000000",
-            textBorderWidth: 2,
-            textShadowColor: "#000000",
-            textShadowBlur: 5,
-          },
-        },
+        center: ['50%', '50%'],
+        radius: '65%',
+        splitArea: { areaStyle: { color: ['rgba(0,228,255,0.1)', 'rgba(0,228,255,0)'] } },
+        axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } },
+        splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+        name: { textStyle: { fontSize: 15,color: '#ffffff'} }
       },
       series: [
         {
@@ -446,25 +397,7 @@ const updateCharts = () => {
   }
 };
 
-// 轮播逻辑
-// const startCarousel = () => {
-//   if (timer) clearInterval(timer)
-//   timer = setInterval(() => {
-//     let next = currentIndex.value + 1
-//     if (next >= projectList.length) next = -1
-//     currentIndex.value = next
 
-//     // 列表滚动跟随
-//     if (currentIndex.value >= 0 && listContainerRef.value) {
-//       listContainerRef.value.scrollTo({
-//         top: currentIndex.value * 60, // 假设行高60
-//         behavior: 'smooth'
-//       })
-//     }
-//   }, 5000)
-// }
-
-//
 // 修改后的永无止境轮播逻辑
 const startCarousel = () => {
   if (timer) clearInterval(timer);
@@ -513,46 +446,43 @@ watch(currentIndex, updateCharts);
 
 onMounted(async () => {
   try {
-    // 1. 拉取 JSON 文件 (加时间戳防止浏览器缓存老数据)
-    const timestamp = new Date().getTime();
-    // 请确保线上环境或 public 目录下有这个 data.json 文件
-    const res = await fetch(`/linedata.json?t=${timestamp}`);
-
+    const timestamp = new Date().getTime()
+    const res = await fetch(`/linedata.json?t=${timestamp}`) 
+    
     if (!res.ok) {
-      throw new Error("无法读取数据文件");
+      throw new Error('无法读取数据文件')
     }
+    
+    const rawData = await res.json()
 
-    const rawData = await res.json();
+    // 🌟 新增：数据容错校验函数
+    const formatData = (val) => {
+      if (val === null || val === undefined || val === '') return '--';
+      if (isNaN(Number(val))) return '--';
+      return Number(val);
+    };
 
-    // 2. 格式化数据：将在线工具转出来的字符串，切割成图表需要的数组和数字
-    projectList.value = rawData.map((item) => {
+    // 2. 格式化数据
+    projectList.value = rawData.map(item => {
       return {
-        name: item.name || "未命名线路",
-        city: item.city || "未知",
-        // 解析坐标，将 "113.36,22.92" 转成 [113.36, 22.92]
-        coords: item.coords
-          ? item.coords.split(",").map(Number)
-          : [116.4, 39.9],
-        total: Number(item.total) || 0,
-        person: Number(item.person) || 0,
-        certify: Number(item.certify) || 0,
-        online: Number(item.online) || 0,
-        // 解析故障分布，将 "1511,41,97,7192,4688" 转成数组
-        fault: {
-          distribution: item.fault_dist
-            ? item.fault_dist.split(",").map(Number)
-            : [0, 0, 0, 0, 0],
+        name: item.name || '未命名线路',
+        city: item.city || '未知',
+        coords: item.coords ? item.coords.split(',').map(Number) : [116.40, 39.90], 
+        
+        // 🌟 修改：应用校验函数处理核心指标
+        total: formatData(item.total),
+        person: formatData(item.person),
+        certify: formatData(item.certify),
+        online: formatData(item.online),
+        
+        // 解析故障分布
+        fault: { 
+          distribution: item.fault_dist ? item.fault_dist.split(',').map(Number) : [0, 0, 0, 0, 0] 
         },
-        // 解析雷达图评价
-        evaluation: item.evaluation
-          ? item.evaluation.split(",").map(Number)
-          : [0, 0, 0, 0, 0],
-        // 如果没有写30天趋势，默认塞30个0进去，防止报错
-        trend30Days: item.trend30Days
-          ? item.trend30Days.split(",").map(Number)
-          : new Array(30).fill(0),
-      };
-    });
+        evaluation: item.evaluation ? item.evaluation.split(',').map(Number) : [0, 0, 0, 0, 0],
+        trend30Days: item.trend30Days ? item.trend30Days.split(',').map(Number) : new Array(30).fill(0)
+      }
+    })
 
     // 3. 数据处理完毕后，再去初始化 ECharts 和轮播
     nextTick(() => {
@@ -664,7 +594,7 @@ const initChartsOptions = () => {
   /* 容器设置为穿透，这样鼠标点击模块空隙时，可以拖拽背后的地球 */
   pointer-events: none;
 
-  text-shadow: 0 2px 2px #000000, 0 0 8px rgba(0, 0, 0, 0.8);
+  /* text-shadow: 0 2px 2px #000000, 0 0 8px rgba(0, 0, 0, 0.8); */
 }
 
 .left-col {

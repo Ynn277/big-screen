@@ -19,6 +19,7 @@ const props = defineProps({
 const chartRef = ref(null);
 const myChart = shallowRef(null);
 // 记录上一次的坐标，用于总览模式时“锚定”视角，防止地球乱飞
+const INITIAL_COORDS = [113.2644, 23.1291];
 let lastCoords = [113.2644, 23.1291];
 let isUserInteracting = false; // 简单的交互锁
 
@@ -386,41 +387,97 @@ const renderGlobe = () => {
       //   bloom: { enable: true, bloomIntensity: 0.5 }
       // }
     },
+    
     series: [
       // === 添加散点层用于显示标记点和标签 ===
       {
         type: "scatter3D",
         coordinateSystem: "globe",
-        blendMode: "source-over", // 改为source-over确保图标不被混合
-        symbol: "pin",
-        symbolSize: 60, // 图标稍微大一点
-        zlevel: 100, // 提高zlevel值，确保图标显示在最顶层
-        z: 1000, // 设置z值，确保在3D空间中处于最高位置
+        blendMode: "source-over", 
+        symbol: "circle", // 改为圆圈
+        symbolSize: 25, 
+        zlevel: 100, 
+        z: 1000, 
 
-        itemStyle: { color: "#ffcc00", opacity: 1 },
-
-        // === 3. 坐标显示 (名称标签配置) ===
-        label: {
-          show: true,
-          formatter: "{b}", // 显示数据项的 name (即项目名称)
-          position: "top",
-          distance: 10, // 文字离图标的距离
-          textStyle: {
-            color: "#fff",
-            fontSize: 32, // 字号大一点，清晰
-            fontWeight: "bold",
-            fontFamily: "Microsoft YaHei",
-            // 给文字加个半透明黑底，防止被地球纹理干扰，看不清
-            backgroundColor: "rgba(0,0,0,0.7)",
-            padding: [8, 15], // 内边距
-            borderRadius: 6, // 圆角
-            borderColor: "#00ffff",
-            borderWidth: 1,
-          },
+        itemStyle: { 
+          color: "#33DFFF", 
+          opacity: 0.9,
+          borderWidth: 4,
+          borderColor: "rgba(51, 223, 255, 0.4)" 
         },
 
-        data: [], // 初始为空，由 updateView 填充
-        animation: false, // 禁用内部动画，防止闪烁
+        
+
+        label: {
+        show: true,
+        position: "top",
+        distance: 15,
+        // 使用 formatter 函数动态拼接数据
+        formatter: function (params) {
+          const d = params.data || {};
+          const name = d.name || "目标区域";
+          
+          // 容错处理：校验是否为有效数字
+          // 排除 null、undefined、空字符串，以及无法转换为数字的值
+          const formatNum = (val) => {
+            if (val === null || val === undefined || val === '' || val === 0)  return '--';
+            if (isNaN(Number(val))) return '--';
+            return val;
+          };
+
+          const total = formatNum(d.total);
+          const person = formatNum(d.person);
+          const online = formatNum(d.online);
+          const certify = formatNum(d.certify);
+
+          // 使用富文本标签包裹内容
+          return `{title|${name}}\n{hr|}\n{label|列车总数：}{value|${total}}\n{label|人员数量：}{value|${person}}\n{label|人车比：}{value|${online}}\n{label|持证人数：}{value|${certify}}`;
+        },
+        textStyle: {
+          backgroundColor: "rgba(0, 10, 20, 0.85)", // 黑底微透，工业风
+          // borderColor: "#00e4ff",                   // 科技蓝边框
+          borderWidth: 1,
+          borderRadius: 2,
+          padding: [12, 15],                        // 弹窗内部留白
+          shadowColor: "rgba(0, 228, 255, 0.3)",    // 边框外发光
+          shadowBlur: 10,
+          // 定义富文本各部分的具体样式
+          rich: {
+            title: {
+              color: "#00e4ff",
+              fontSize: 30,
+              fontWeight: "bold",
+              align: "left",
+              padding: [0, 0, 8, 0],
+            },
+            // hr: {
+            //   borderColor: "rgba(0, 228, 255, 0.3)",
+            //   width: "100%",
+            //   borderWidth: 0.5,
+            //   height: 0,
+            //   padding: [0, 0, 8, 0],
+            // },
+            label: {
+              color: "#b0cbe9",
+              fontSize: 18,
+              lineHeight: 24,
+              align: "left",
+            },
+            value: {
+              color: "#ffffff",
+              fontSize: 20,
+              fontWeight: "bold",
+              fontFamily: "Arial", // 数字使用非衬线体更干练
+              lineHeight: 24,
+              align: "right",
+            },
+          },
+        },
+      },
+
+
+        data: [], 
+        animation: false 
       },
     ],
   };
@@ -428,166 +485,6 @@ const renderGlobe = () => {
   updateView(props.targetCoords);
 };
 
-// const updateView = (coords) => {
-//   // 0. 安全检查
-//   if (!myChart.value || isUserInteracting) return;
-
-//   const isOverview = !coords; // coords 为 null 则是总览模式
-
-//   // ==========================================
-//   // 1. 视角控制器配置 (View Control)
-//   // ==========================================
-//   const targetToUse = isOverview ? lastCoords : coords;
-
-//   const viewOption = {
-//     autoRotate: isOverview, // 总览自动旋转，详情停止
-//     distance: isOverview ? 200 : 120, // 距离：远 vs 近
-//     targetCoord: targetToUse,
-//     animationDurationUpdate: 1000,
-//     easing: 'cubicInOut'
-//   };
-
-//   // ==========================================
-//   // 2. 基础地图层 (始终存在)
-//   // ==========================================
-//   const seriesConfig = [
-//     {
-//       type: 'map3D',
-//       coordinateSystem: 'globe',
-//       map: 'china',
-//       height: 5,
-//       shading: 'color',
-//       itemStyle: {
-//         color: 'rgba(0, 100, 200, 0.1)', // 地图颜色
-//         borderColor: '#00ffff',          // 边框颜色
-//         borderWidth: 3
-//       },
-//       emphasis: {
-//         itemStyle: { color: 'rgba(0, 255, 255, 0.3)', borderColor: '#ffffff', borderWidth: 4 }
-//       },
-//       label: { show: false }
-//     }
-//   ];
-
-//   // ==========================================
-//   // 3. 模式分叉逻辑 (互斥)
-//   // ==========================================
-
-//   if (isOverview) {
-//     // ##############################################
-//     // 模式 A: 总览模式 -> 只显示“呼吸光点”
-//     // ##############################################
-
-//     if (props.allPoints && props.allPoints.length > 0) {
-
-//       // 光点层 1：外围光晕 (大而淡)
-//       seriesConfig.push({
-//         type: 'scatter3D',
-//         coordinateSystem: 'globe',
-//         name: 'Overview_Halo', // 给个名字方便调试
-//         symbol: 'circle',
-//         symbolSize: 25,
-//         blendMode: 'lighter', // 关键：光叠加模式
-//         itemStyle: {
-//           color: '#00e4ff',
-//           opacity: 0.4
-//         },
-//         label: { show: false },
-//         silent: true, // 只有总览的光点不需要点击交互
-//         data: props.allPoints.map(p => ({
-//           name: p.name,
-//           value: [p.value[0], p.value[1], 0] // 紧贴地面
-//         }))
-//       });
-
-//       // 光点层 2：核心高亮 (小而亮)
-//       seriesConfig.push({
-//         type: 'scatter3D',
-//         coordinateSystem: 'globe',
-//         name: 'Overview_Core',
-//         symbol: 'circle',
-//         symbolSize: 10,
-//         blendMode: 'lighter',
-//         itemStyle: {
-//           color: '#ffffff', // 核心用白色更亮
-//           opacity: 1
-//         },
-//         label: { show: false },
-//         silent: true,
-//         data: props.allPoints.map(p => ({
-//           name: p.name,
-//           value: [p.value[0], p.value[1], 0]
-//         }))
-//       });
-//     }
-
-//   } else {
-//     // ##############################################
-//     // 模式 B: 详情模式 -> 只显示“定位图标”
-//     // (此时上面的光点代码不会执行，光点会自动消失)
-//     // ##############################################
-
-//     // 1. 查找目标点数据
-//     let targetPoint = null;
-//     if (props.allPoints && props.allPoints.length > 0) {
-//       targetPoint = props.allPoints.find(p => p.name === props.activeName);
-//       // 容错匹配：如果名字对不上，尝试匹配坐标
-//       if (!targetPoint) {
-//          targetPoint = props.allPoints.find(p =>
-//            Math.abs(p.value[0] - coords[0]) < 0.0001 &&
-//            Math.abs(p.value[1] - coords[1]) < 0.0001
-//          );
-//       }
-//     }
-
-//     // 2. 构造单个图标的数据
-//     const detailData = targetPoint ? [targetPoint] : [{
-//       name: props.activeName || '目标区域',
-//       value: [coords[0], coords[1], 0.5],
-//       itemStyle: { color: '#ffcc00' }
-//     }];
-
-//     // 3. 添加图标层
-//     seriesConfig.push({
-//       type: 'scatter3D',
-//       coordinateSystem: 'globe',
-//       name: 'Detail_Pin',
-//       symbol: 'pin',
-//       symbolSize: 60,
-//       zlevel: 100,
-//       symbolOffset: [0, '-50%'], // 针尖对准地面
-
-//       label: {
-//         show: true,
-//         formatter: '{b}',
-//         position: 'top',
-//         distance: 10,
-//         textStyle: {
-//           color: '#fff',
-//           fontSize: 24,
-//           fontWeight: 'bold',
-//           backgroundColor: 'rgba(0,0,0,0.7)',
-//           padding: [8, 15],
-//           borderRadius: 6,
-//           borderColor: '#00ffff',
-//           borderWidth: 1
-//         }
-//       },
-//       itemStyle: { color: '#ffcc00', opacity: 1 },
-//       data: detailData
-//     });
-//   }
-
-//   // ==========================================
-//   // 4. 应用配置
-//   // ==========================================
-//   // ECharts 会对比新旧 seriesConfig。
-//   // 因为我们在 else 里没有 push 光点，ECharts 会自动移除原来的光点层。
-//   myChart.value.setOption({
-//     globe: { viewControl: viewOption },
-//     series: seriesConfig
-//   });
-// }
 
 const updateView = (coords) => {
   if (!myChart.value) return;
@@ -596,7 +493,7 @@ const updateView = (coords) => {
   const isOverview = !coords || !Array.isArray(coords) || coords.length === 0;
 
   // 2. 视角配置
-  const targetToUse = isOverview ? lastCoords : coords;
+  const targetToUse = isOverview ? INITIAL_COORDS : coords;
   const viewOption = {
     autoRotate: isOverview ? true : false,
     autoRotateSpeed: -10,
@@ -685,6 +582,8 @@ const updateView = (coords) => {
     }
   }
 
+  
+
   // =========================================================
   // 【核心修改】构建 Series 数组
   // 包含所有图层 (Halo + Core + Pin)
@@ -742,34 +641,95 @@ const updateView = (coords) => {
       data: coreData, // 有数据就显示，没数据([])就自动隐藏
     },
 
+   
     // 3. 详情图标层 (Detail_Pin)
     {
       type: "scatter3D",
       coordinateSystem: "globe",
       name: "Detail_Pin",
-      symbol: "pin",
-      symbolSize: 60,
+      symbol: "circle", // 将水滴图标 'pin' 改为圆圈 'circle' 以模拟气泡
+      symbolSize: 28,   // 适当缩小尺寸
       zlevel: 100,
-      symbolOffset: [0, "-50%"],
+      symbolOffset: [0, 0], // 圆圈不需要像水滴那样偏移，使其正对坐标
+      itemStyle: { 
+        color: "#33DFFF", // 亮蓝色核心
+        opacity: 0.9,
+        borderWidth: 4,   // 加上边框模拟外围的光晕效果
+        borderColor: "rgba(51, 223, 255, 0.4)" 
+      },
+     
+      
       label: {
         show: true,
-        formatter: "{b}",
         position: "top",
-        distance: 10,
+        distance: 15,
+        
+
+        // 使用 formatter 函数动态拼接数据
+        formatter: function (params) {
+          const d = params.data || {};
+          const name = d.name || "目标区域";
+          
+          // 容错处理：校验是否为有效数字
+          // 排除 null、undefined、空字符串，以及无法转换为数字的值
+          const formatNum = (val) => {
+            if (val === null || val === undefined || val === '' || val === 0)  return '--';
+            if (isNaN(Number(val))) return '--';
+            return val;
+          };
+
+          const total = formatNum(d.total);
+          const person = formatNum(d.person);
+          const online = formatNum(d.online);
+          const certify = formatNum(d.certify);
+
+          // 使用富文本标签包裹内容
+          return `{title|${name}}\n{hr|}\n{label|列车总数：}{value|${total}}\n{label|人员数量：}{value|${person}}\n{label|人车比：}{value|${online}}\n{label|持证人数：}{value|${certify}}\n`;
+        },
+
         textStyle: {
-          color: "#fff",
-          fontSize: 32,
-          fontWeight: "bold",
-          backgroundColor: "rgba(0,0,0,0.7)",
-          padding: [8, 15],
-          borderRadius: 6,
-          borderColor: "#00ffff",
+          backgroundColor: "rgba(0, 10, 20, 0.85)", // 黑底微透，工业风
+          borderColor: "#00e4ff",                   // 科技蓝边框
           borderWidth: 1,
+          borderRadius: 2,
+          padding: [12, 15],                        // 弹窗内部留白
+          shadowColor: "rgba(0, 228, 255, 0.3)",    // 边框外发光
+          shadowBlur: 10,
+          // 定义富文本各部分的具体样式
+          rich: {
+            title: {
+              color: "#00e4ff",
+              fontSize: 30,
+              fontWeight: "bold",
+              align: "left",
+              padding: [0, 0, 8, 0],
+            },
+            // hr: {
+            //   borderColor: "rgba(0, 228, 255, 0.3)",
+            //   width: "100%",
+            //   borderWidth: 0.5,
+            //   height: 0,
+            //   padding: [0, 0, 8, 0],
+            // },
+            label: {
+              color: "#b0cbe9",
+              fontSize: 18,
+              lineHeight: 24,
+              align: "left",
+            },
+            value: {
+              color: "#ffffff",
+              fontSize: 20,
+              fontWeight: "bold",
+              fontFamily: "Arial", // 数字使用非衬线体更干练
+              lineHeight: 24,
+              align: "right",
+            },
+          },
         },
       },
-      itemStyle: { color: "#ffcc00", opacity: 1 },
       data: pinData, // 有数据就显示，没数据([])就自动隐藏
-    },
+    }
   ];
 
   // 5. 应用配置

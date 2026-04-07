@@ -1,6 +1,6 @@
 <template>
   <div class="main-layout">
-
+    <!-- <div class="background-mask"></div> -->
  
     <!-- <div class="click-zone left-zone" @click="goToForm2">
       <div class="hover-tip">前往 故障记录表</div> 
@@ -12,39 +12,63 @@
 
     <div class="side-column left-col">
       <div class="sub-panel overview-panel">
-        <div class="panel-title">
-          | {{ isOverview ? "全国总览" : currentData.name }}
+        
+        <div class="panel-header-new">
+          <div class="title-text-new">
+            <span class="label">当前项目：</span>
+            <span class="value">{{ isOverview ? "全国总览" : currentData.name }}</span>
+          </div>
+          <div class="status-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+          </div>
         </div>
 
-        <!-- <div class="stat-row" v-if="!isOverview">
-          <span class="label">运营时间：</span>
-          <span class="value text-small">{{ currentData.opTime }}</span>
-        </div> -->
-
-        <div class="stat-grid">
-          <div
-            class="click-zone left-zone"
-            style="width: 100%"
-            @click="goToForm2"
-          >
+        <div class="stat-grid-clean">
+          <div class="click-zone left-zone" style="width: 100%" @click="goToForm2">
             <div class="hover-tip">前往 故障记录表</div>
           </div>
-          <div class="grid-item">
-            <div class="num highlight">{{ currentData.total }}</div>
-            <div class="txt">列车总数</div>
+
+          <div class="grid-item-clean">
+            <div class="icon-box-clean">
+              <svg viewBox="0 0 24 24"><path d="M12 2c-4 0-8 .5-8 4v9.5C4 17.43 5.57 19 7.5 19L6 20.5v.5h12v-.5L16.5 19c1.93 0 3.5-1.57 3.5-3.5V6c0-3.5-4-4-8-4zM7.5 17c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm3.5-7H6V6h5v4zm2 0V6h5v4h-5zm3.5 7c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            </div>
+            <div class="data-box-clean">
+              <div class="num text-blue tech-font">{{ currentData.total }}</div>
+              <div class="txt">列车总数</div>
+            </div>
           </div>
-          <div class="grid-item">
-            <div class="num">{{ currentData.online }}</div>
-            <div class="txt">人车比</div>
+
+          <div class="grid-item-clean">
+            <div class="icon-box-clean">
+              <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div class="data-box-clean">
+              <div class="num tech-font">{{ currentData.online }}</div>
+              <div class="txt">人车比</div>
+            </div>
           </div>
-          <div class="grid-item">
-            <div class="num">{{ currentData.person }}</div>
-            <div class="txt">人员数量</div>
+
+          <div class="grid-item-clean">
+            <div class="icon-box-clean">
+              <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2.09 13.5l-1.41 1.41-8.5-8.5 1.41-1.41 8.5 8.5zM8.5 11c-1.38 0-2.5-1.12-2.5-2.5S7.12 6 8.5 6 11 7.12 11 8.5 9.88 11 8.5 11zm7 7c-1.38 0-2.5-1.12-2.5-2.5S14.12 13 15.5 13s2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </div>
+            <div class="data-box-clean">
+              <div class="num tech-font">{{ currentData.person }}</div>
+              <div class="txt">人员数量</div>
+            </div>
           </div>
-          <div class="grid-item">
-            <div class="num">{{ currentData.certify }}</div>
-            <div class="txt">持证人数</div>
+
+          <div class="grid-item-clean">
+            <div class="icon-box-clean">
+              <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
+            </div>
+            <div class="data-box-clean">
+              <div class="num tech-font">{{ currentData.certify }}</div>
+              <div class="txt">持证人数</div>
+            </div>
           </div>
+
         </div>
       </div>
 
@@ -273,6 +297,7 @@ let pieChart = null,
 
 const updateCharts = () => {
   const data = currentData.value;
+  const techFont = "'hst', 'ysbt', 'almm'";
 
   // 1. 饼图 (故障分布)
   if (pieChart) {
@@ -286,7 +311,7 @@ const updateCharts = () => {
       "#f59056",
     ];
     pieChart.setOption({
-      tooltip: { trigger: "item" },
+      tooltip: { trigger: "item",textStyle : {fontFamily :techFont}  },
       legend: {
         orient: "vertical",
         right: "5%", // 靠右距离
@@ -295,6 +320,7 @@ const updateCharts = () => {
         textStyle: {
           color: "#dbeeff", // 文字颜色
           fontSize: 12,
+          fontFamily: techFont,
         },
         itemWidth: 10, // 图例图标宽度
         itemHeight: 10,
@@ -334,7 +360,7 @@ const updateCharts = () => {
   // 2. 折线图 (30天趋势)
   if (lineChart) {
     lineChart.setOption({
-      tooltip: { trigger: "axis" },
+      tooltip: { trigger: "axis",textStyle : {fontFamily :techFont}  },
       grid: { top: 10, right: 10, bottom: 20, left: 30 },
       xAxis: { type: "category", show: false, boundaryGap: false },
       yAxis: {
@@ -365,7 +391,7 @@ const updateCharts = () => {
   // 3. 雷达图 (评价)
   if (radarChart) {
     radarChart.setOption({
-      tooltip: {},
+      tooltip: { textStyle : {fontFamily :techFont}  },
       radar: {
         indicator: [
           { name: "安全", max: 100 },
@@ -379,7 +405,7 @@ const updateCharts = () => {
         splitArea: { areaStyle: { color: ['rgba(0,228,255,0.1)', 'rgba(0,228,255,0)'] } },
         axisLine: { lineStyle: { color: 'rgba(255,255,255,0.3)' } },
         splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
-        name: { textStyle: { fontSize: 15,color: '#ffffff'} }
+        name: { textStyle: {fontSize: 15,color: '#ffffff',fontFamily: techFont} }
       },
       series: [
         {
@@ -513,6 +539,10 @@ const initChartsOptions = () => {
 </script>
 
 <style scoped>
+
+
+
+
 .click-zone {
   position: absolute;
   top: 0;
@@ -576,6 +606,48 @@ const initChartsOptions = () => {
   z-index: 1;
 }
 
+/* .center-column::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); 
+  pointer-events: none;
+  z-index: 2;
+} */
+
+/* 优化后的 .center-column::after */
+.center-column::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* 🌟 修改点 1：将 background 从纯黑改为径向渐变 */
+  /* 中心透明(让地球亮出来)，四周深蓝黑(让文字清晰) */
+  background: radial-gradient(
+    circle at center, 
+    rgba(5, 15, 30, 0) 0%,      /* 中心完全透明 */
+    rgba(5, 15, 30, 0.3) 50%,    /* 中间适度压暗 */
+    rgba(1, 4, 10, 0.9) 100%     /* 边缘极暗，产生深空感 */
+  );
+
+  /* 🌟 修改点 2：添加离线物理暗纹 (提升工业质感) */
+  /* 利用重复渐变产生微弱的横向扫描线，不需要任何外部图片 */
+  background-image: 
+    radial-gradient(circle at center, rgba(5, 15, 30, 0) 0%, rgba(1, 4, 10, 0.9) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 255, 255, 0.01) 2px, rgba(255, 255, 255, 0.01) 3px);
+  background-blend-mode: overlay;
+
+  pointer-events: none;
+  z-index: 2;
+}
+
+
 .side-column {
   position: absolute;
   top: 80px;
@@ -598,6 +670,9 @@ const initChartsOptions = () => {
   /* text-shadow: 0 2px 2px #000000, 0 0 8px rgba(0, 0, 0, 0.8); */
 }
 
+/* 使用 :deep 穿透 Vue 的作用域限制 */
+
+
 .left-col {
   left: 20px;
 }
@@ -608,31 +683,73 @@ const initChartsOptions = () => {
 /* 通用面板样式 */
 /* .sub-panel { pointer-events: auto; padding: 10px; display: flex; flex-direction: column; background: transparent; } */
 /* 通用面板样式 */
+
+
+/* 修改 MainView.vue 中的 .sub-panel */
 .sub-panel {
-  /* 模块自身恢复鼠标交互，保证图表 tooltip 和列表滚动正常 */
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-
-  /* === 关键：把之前的清透蒙版样式加到这里 === */
-  background: rgba(200, 200, 200, 0.08); /* 极度透明的浅灰白 */
-  backdrop-filter: blur(3px); /* 毛玻璃模糊 */
-  -webkit-backdrop-filter: blur(3px);
-
-  border: 1px solid rgba(0, 228, 255, 0.3); /* 青色科技边框 */
-  box-shadow: inset 0 0 15px rgba(0, 228, 255, 0.1),
-    0 5px 15px rgba(0, 0, 0, 0.4);
-  border-radius: 8px; /* 给每个小模块切出圆角 */
-  padding: 15px; /* 保证里面的文字和图表不会贴着边框 */
+  padding: 15px; 
+  
+  /* ================= 核心修改区域 ================= */
+  
+  /* 1. 变成圆角 */
+  border-radius: 8px !important;
+  
+  /* 2. 半透明深色背景 (让底下的地图能透出一点点颜色) */
+  background: rgba(10, 25, 45, 0.6) !important; 
+  
+  /* 3. 核心：毛玻璃滤镜 (模糊背后的地图) */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* 兼容不同浏览器 */
+  
+  /* 4. 纤细的发光边框 (代替你原来死板的粗实线) */
+  border: 1px solid rgba(0, 228, 255, 0.2) !important;
+  
+  /* 5. 阴影提升立体感：内侧微亮发光 + 外侧深色投影浮空感 */
+  box-shadow: 
+    inset 0 0 20px rgba(0, 228, 255, 0.05),
+    0 8px 20px rgba(0, 0, 0, 0.6) !important;
+    
+  /* ============================================== */
 }
 .panel-title {
-  color: #00e4ff;
+  /* 保持你已经配好的工业字体 */
+  font-family: 'almm', 'Microsoft YaHei', sans-serif !important;
   font-size: 26px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  padding-left: 10px;
+  font-weight: 900; /* 调至最粗，增加金属受光面积 */
+  margin-bottom: 15px;
+  padding-left: 12px;
+  letter-spacing: 2px; /* 增加字间距，复刻机甲风的疏朗感 */
+  
+  /* 1. 核心：金属圆柱体反射渐变 (针对 26px 字号优化) */
+  background: linear-gradient(
+    to bottom, 
+    #ffffff 0%,    /* 顶部高光 */
+    #a5c2e3 45%,   /* 上部反光区 */
+    /* #4a6583 50%,   中间金属转折暗带 (核心：深浅交界要锐利) */
+    #c6e4ff 55%,   /* 下部受光区 */
+    #ffffff 100%   /* 底部边缘亮线 */
+  );
+  
+  /* 2. 文字裁剪：将渐变色填充进文字 */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+
+  /* 3. 拒绝漫射模糊，改用锐利的物理重投影 + 微弱的青色冷光 */
+  /* drop-shadow 比 text-shadow 在裁剪模式下兼容性更好 */
+  /* filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.9)) 
+          drop-shadow(0px 0px 4px rgba(0, 228, 255, 0.2)); */
+
+  /* 4. 优化左侧竖线：将其从纯色改为具有发光感的激光条 */
   border-left: 4px solid #00e4ff;
-  /* text-shadow: 0 0 10px rgba(0, 228, 255, 0.8);  */
+  /* box-shadow: -4px 0 10px rgba(0, 228, 255, 0.4);  */
+  
+  /* 解决某些浏览器下背景裁剪可能溢出的问题 */
+  
 }
 
 /* 左侧：核心指标面板 */
@@ -651,40 +768,145 @@ const initChartsOptions = () => {
   margin-left: 5px;
 }
 
-.stat-grid {
+/* ================= 极简统一风格 面板覆盖 ================= */
+.overview-panel {
+  flex: 0 0 auto;
+}
+
+/* ================= 标题行与状态指示灯 ================= */
+/* ================= 标题行与状态指示灯 ================= */
+.panel-header-new {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px; /* 字体变大后，底边距稍微收紧一点 */
+}
+
+/* 🌟 核心修改：完全复刻 .panel-title 的金属质感与左侧蓝条 */
+.title-text-new {
+  font-family: 'almm', 'Microsoft YaHei', sans-serif !important;
+  font-size: 26px; /* 统一字号为 26px */
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding-left: 12px;
+  border-left: 4px solid #00e4ff; /* 加上左侧的青蓝色竖线 */
+  display: flex;
+  align-items: center;
+
+  /* 铬金属质感渐变 */
+  background: linear-gradient(
+    to bottom, 
+    #ffffff 0%,    
+    #a5c2e3 45%,   
+    #c6e4ff 55%,   
+    #ffffff 100%   
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* 清除原有 span 的独立颜色，强行继承父级的金属光泽 */
+.title-text-new .label,
+.title-text-new .value {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+
+
+
+
+/* 右上角两个闪烁的小绿点/蓝点 */
+.status-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.status-dots .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+.status-dots .dot.active {
+  background: #00e4ff; /* 原图亮起的是微弱的青绿色 */
+  box-shadow: 0 0 6px #00ffc6;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ================= 极简无界网格 ================= */
+.stat-grid-clean {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 0 5px;
+  grid-template-columns: repeat(2, 1fr); /* 完美的均分两列 */
+  gap: 20px 10px;                           /* 卡片之间的间距 */
+  margin: 15px auto 0;
+  width: 100%;
+  /* position: relative; */
 }
-/* .grid-item { background: rgba(0, 91, 234, 0.1); border-radius: 4px; padding: 10px; text-align: center; border: 1px solid rgba(0, 91, 234, 0.3); } */
-.grid-item {
-  /* === 修改开始 === */
-  /* 原代码: background: rgba(0, 91, 234, 0.1); */
-  background: transparent; /* 改为透明 */
 
-  border-radius: 4px;
-  padding: 10px;
-  text-align: center;
-
-  /* 原代码: border: 1px solid rgba(0, 91, 234, 0.3); */
-  border: none; /* 去掉边框 */
-  /* === 修改结束 === */
+.grid-item-clean {
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  width: 100%;
 }
-.grid-item .num {
-  font-size: 28px;
+
+/* 图标的深色底座 */
+.icon-box-clean {
+  width: 48px;
+  height: 48px;
+  background: rgba(30, 56, 75, 0.6); /* 截图中的深蓝灰底色 */
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 图标统一样式 */
+.icon-box-clean svg {
+  width: 20px;
+  height: 20px;
+  fill: #00e4ff; /* 统一的蓝青色，没有任何渐变 */
+}
+
+/* 数据文本排版 */
+.data-box-clean {
+  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 默认数字为白色 */
+.data-box-clean .num {
+  font-size: 26px;
   font-weight: bold;
-  font-family: "Arial";
   color: #fff;
-  text-shadow: 0 2px 2px #000000, 0 0 8px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+  margin-bottom: 6px;
+  /* 增加数字的锐利钢印投影 */
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 228, 255, 0.3);
 }
-.grid-item .num.highlight {
-  color: #00e4ff;
+
+/* 精准还原截图：列车总数数字为蓝色 */
+.data-box-clean .num.text-blue {
+  color: #00e4ff; 
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 228, 255, 0.6); 
 }
-.grid-item .txt {
-  font-size: 16px;
-  color: #b0cbe9;
-  margin-top: 4px;
+
+/* 底部的小字标注 */
+.data-box-clean .txt {
+  font-family: 'almm', 'Microsoft YaHei', sans-serif !important;
+  font-size: 13px;
+  color: #89a5c3;
+  letter-spacing: 1px;
 }
 
 /* 颜色类 */
@@ -703,6 +925,7 @@ const initChartsOptions = () => {
 .scroll-container { flex: 1; overflow-y: hidden; display: flex; flex-direction: column; gap: 6px; }
 .project-row { padding: 8px 12px; border-radius: 4px; border: 1px solid transparent; transition: all 0.3s; } */
 .list-panel {
+  font-family: 'almm', 'Microsoft YaHei', sans-serif !important;
   flex: 1;
   /* overflow: hidden;  */
   overflow-y: auto;
@@ -758,7 +981,7 @@ const initChartsOptions = () => {
   border-left: 4px solid #00e4ff; /* 左侧亮条 */
   box-shadow: 0 0 10px rgba(0, 228, 255, 0.1);
 }
-/* .project-row.active-row { background: rgba(0, 228, 255, 0.15); border-color: rgba(0, 228, 255, 0.5); box-shadow: inset 0 0 10px rgba(0,228,255,0.2); } */
+
 .project-row.active-row {
   background: linear-gradient(
     90deg,

@@ -1,7 +1,44 @@
 /* 先删除默认的内外边距 */
+ /* @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap'); */
+@font-face {
+  font-family: 'almm'; /* 给这个字体起个名字 */
+  src: url('./assets/fonts/hst.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 * {
   margin: 0;
   padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  font-size: 62.5%;
+}
+
+/* 1. 全局中文基础字体：稍微硬朗一点的黑体组合 */
+body, input, button, a, textarea, select {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 2.2rem;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
+/* 2. 🌟 新增：专属的工业风/科技风数字字体类 */
+/* 将其应用到所有需要展示数据、金额、核心指标的地方 */
+.tech-font, 
+.num, 
+.num-warn, 
+.num-safe, 
+.val {
+  /* 第一顺位：Rajdhani (加载的科技字体)
+    第二顺位：Bahnschrift (Win10+ 自带的绝佳工业英文字体)
+    第三顺位：DIN Alternate (Mac 自带的工业大屏标配字体) 
+  */
+  font-family: 'Rajdhani', 'Bahnschrift', 'DIN Alternate', 'Arial', sans-serif !important;
+  letter-spacing: 1px; /* 工业风的数字通常字间距微宽 */
 }
 
 html {

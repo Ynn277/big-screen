@@ -1,6 +1,22 @@
-<template>
+<!-- <template>
   <div class="chart-container">
     <div ref="chartRef" style="width: 100%; height: 100%"></div>
+  </div>
+</template> -->
+
+<template>
+  <div class="chart-container" style="position: relative; width: 100%; height: 100%;">
+    <div ref="chartRef" style="width: 100%; height: 100%"></div>
+
+    <div v-if="showCustomTip" class="custom-center-tooltip">
+      <div class="tooltip-header">{{ customTipData.name }}</div>
+      <div class="tooltip-body">
+        列车总数：<span class="val">{{ customTipData.total || '--' }}</span><br/>
+        人员数量：<span class="val">{{ customTipData.person || '--' }}</span><br/>
+        人车比：&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">{{ customTipData.online || '--' }}</span><br/>
+        持证人数：<span class="val">{{ customTipData.certify || '--' }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -10,6 +26,31 @@ import * as echarts from "echarts";
 import "echarts-gl";
 import earthImg from "../assets/img/earth.jpg";
 import earthMouthImg from "../assets/img/earth-mouth.jpg";
+
+// 在 script 顶部定义两个响应式变量（如果你还没引入 ref，记得在顶部 import { ref } from 'vue'）
+const showCustomTip = ref(false); // 控制弹窗显示
+const customTipData = ref({});    // 存储当前弹窗的数据
+
+// 替换掉之前的 watch
+watch(() => props.activeName, (newName) => {
+  // 如果是全国总览状态 (没有 activeName)，关闭弹窗
+  if (!newName) {
+    showCustomTip.value = false;
+    return;
+  }
+  
+  // 在你的所有点数据中，找到当前高亮的那一条
+  const activeItem = props.allPoints.find(item => item.name === newName);
+  
+  if (activeItem) {
+    // 把数据赋给我们的自定义弹窗，并显示出来
+    customTipData.value = activeItem;
+    showCustomTip.value = true;
+  } else {
+    showCustomTip.value = false;
+  }
+});
+
 const props = defineProps({
   targetCoords: { type: Array, default: null }, // [经度, 纬度] 或 null(总览)
   activeName: { type: String, default: null }, // 接收当前高亮的项目名称
@@ -28,21 +69,6 @@ onMounted(() => {
   window.addEventListener("resize", handleResize);
 });
 
-// onUnmounted(() => {
-//   try {
-//     window.removeEventListener('resize', handleResize);
-//     // 最安全的检查方式：确保myChart存在，myChart.value存在，且具有dispose方法
-//     if (typeof myChart !== 'undefined' && myChart !== null &&
-//         typeof myChart.value !== 'undefined' && myChart.value !== null &&
-//         typeof myChart.value.dispose === 'function') {
-//       myChart.value.dispose();
-//       // 释放引用
-//       myChart.value = null;
-//     }
-//   } catch (error) {
-//     console.error('销毁图表实例时发生错误:', error);
-//   }
-// });
 
 onUnmounted(() => {
   try {
@@ -73,6 +99,7 @@ watch(
 let chinaLinesData = [];
 
 const initChart = async () => {
+  
   if (!chartRef.value) return;
 
   // === 步骤 1：使用本地地图数据 ===
@@ -129,97 +156,6 @@ const initChart = async () => {
   }
 };
 
-// const convertGeoJSONToLines = (geoJson) => {
-//   const lines = [];
-//   if (!geoJson || !geoJson.features) return lines;
-
-//   geoJson.features.forEach(feature => {
-//     const geometry = feature.geometry;
-//     if (!geometry) return;
-
-//     let rings = [];
-//     if (geometry.type === 'Polygon') {
-//       rings = geometry.coordinates;
-//     } else if (geometry.type === 'MultiPolygon') {
-//       geometry.coordinates.forEach(polygon => {
-//         rings = rings.concat(polygon);
-//       });
-//     }
-
-//     rings.forEach(ring => {
-//       // 1. 计算地理边界和特征
-//       let minLng = 180, maxLng = -180;
-//       let minLat = 90, maxLat = -90;
-
-//       ring.forEach(coord => {
-//         const [lng, lat] = coord;
-//         if (lng < minLng) minLng = lng;
-//         if (lng > maxLng) maxLng = lng;
-//         if (lat < minLat) minLat = lat;
-//         if (lat > maxLat) maxLat = lat;
-//       });
-//       const pointCount = ring.length;
-
-//       // =========================================================
-//       // 第一步：黑名单 (一票否决)
-//       // 只要命中这些特征，直接剔除，不管点数多少，不管是不是核心
-//       // =========================================================
-
-//       // 【A. 剔除台湾右侧红框】
-//       // 台湾本岛最东端大约在 122 度。
-//       // 任何完全位于东经 122.5 度以东的孤立碎块，肯定是那个红框。
-//       if (minLng > 122.5) return;
-
-//       // 【B. 剔除南海大矩形框】
-//       // 特征：这个框纵向跨度极大，从赤道附近(3度)一直延伸到广东附近(20多度)。
-//       // 真实的省份（如广东、海南）不会跨越这么大的纬度。
-//       // 逻辑：如果它同时涉足了南部深海(Lat < 15) 和 北部海域(Lat > 20)，它就是那个干扰框。
-//       if (minLat < 15 && maxLat > 20) return;
-
-//       // 【C. 剔除南海南部碎块 (九段线、小岛礁)】
-//       // 海南岛最南端大约在 18 度。
-//       // 凡是完全位于北纬 18 度以南的，全部剔除 (清空西沙、南沙)。
-//       if (maxLat < 18) return;
-
-//       // =========================================================
-//       // 第二步：白名单 (核心保留)
-//       // 能走到这里的，已经是通过了黑名单检查的安全板块
-//       // =========================================================
-
-//       // 【D. 大陆海岸线/复杂板块】
-//       // 只要点数 > 100，说明是精细的陆地 (包括东部海岸线、各省边界)，保留！
-//       if (pointCount > 100) {
-//         lines.push({ coords: ring });
-//         return;
-//       }
-
-//       // 【E. 台湾岛/海南岛】
-//       // 双重保险，防止因为数据简化导致点数不足
-//       const isTaiwan = minLng > 119 && maxLng < 122.5 && minLat > 21 && maxLat < 26;
-//       const isHainan = minLng > 108 && maxLng < 112 && minLat > 18 && maxLat < 21;
-
-//       if (isTaiwan || isHainan) {
-//         lines.push({ coords: ring });
-//         return;
-//       }
-
-//       // =========================================================
-//       // 第三步：幸存者筛选
-//       // 剩下的都是点数 < 100 的小碎块，且位于北纬18度以北 (广东福建沿海)。
-//       // =========================================================
-
-//       // 【F. 过滤极小噪点】
-//       // 保留沿海小岛 (点数 > 10)，剔除剩下的微小九段线头 (点数 < 10)
-//       if (pointCount > 10) {
-//         lines.push({ coords: ring });
-//       }
-//     });
-//   });
-
-//   return lines;
-// }
-
-// src/views/myChart.vue
 
 // 辅助函数：将 GeoJSON 解析为线条，并加入【人工校准】逻辑
 const convertGeoJSONToLines = (geoJson) => {
@@ -329,8 +265,12 @@ const renderGlobe = () => {
       isUserInteracting = false;
     }, 1000);
   });
+ const techFont = "'hst', 'ysbt', 'almm'";
+  // myChart.vue 内部配置示例
+const option = {
+    
+    
 
-  const option = {
     backgroundColor: "rgba(0,0,0,0)",
     globe: {
       // 优化配置，增加真实感同时保持稳定
@@ -354,12 +294,12 @@ const renderGlobe = () => {
 
       light: {
         main: {
-          intensity: 1.5,
+          intensity: 10,
           shadow: false,
           alpha: 30, // 调整光源位置
           beta: 40,
         },
-        ambient: { intensity: 0.5 }, // 合理的环境光
+        ambient: { intensity: 10 }, // 合理的环境光
         ambientCubemap: {
           texture: "",
           diffuseIntensity: 0.5,
@@ -380,14 +320,51 @@ const renderGlobe = () => {
         minAlpha: 10,
         maxAlpha: 50,
       },
+      geo: {
+    itemStyle: {
+      areaColor: 'rgba(7, 21, 57, 0.8)', // 使用深蓝黑色背景
+      borderColor: 'rgba(0, 228, 255, 0.2)', // 弱化省份边界线
+    }
+  },
 
-      // 辉光特效：高科技发光
-      // postEffect: {
-      //   enable: true,
-      //   bloom: { enable: true, bloomIntensity: 0.5 }
-      // }
     },
     
+    tooltip: {
+    show: false,
+    
+  },
+  emphasis: {
+    label: {
+      show: false,
+      formatter: '', // 强制让它没内容可显
+      opacity: 0
+    },
+    trigger: 'item',
+    renderMode: 'html',
+    appendToBody: true,        // 核心：直接挂载到 body，突破所有层级
+    // alwaysShowContent: true,   // 核心：让它一直亮着，不随鼠标移开而消失
+    // 关键：把侧边栏的 毛玻璃、边框、阴影 样式原封不动地复制到这里！
+    textStyle : {fontFamily :techFont} ,
+    extraCssText: 'background: rgba(200, 200, 200, 0.08) !important; backdrop-filter: blur(3px) !important; -webkit-backdrop-filter: blur(3px) !important; border: 1px solid rgba(0, 228, 255, 0.3) !important; box-shadow: inset 0 0 15px rgba(0, 228, 255, 0.1), 0 5px 15px rgba(0, 0, 0, 0.4) !important; border-radius: 8px !important; z-index: 9999 !important; pointer-events: none;',
+    formatter: function(params) {
+      if(!params.data) return '';
+      // 这里的 HTML 结构高度还原原型图的设计
+      return `
+        <div style="padding: 5px 10px; min-width: 140px;">
+          <div style="color: #00e4ff; font-size: 18px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid rgba(0,228,255,0.3); padding-bottom: 5px;">
+            ${params.data.name}
+          </div>
+          <div style="color: #b0cbe9; font-size: 14px; line-height: 2;">
+            列车总数：<span style="color:#fff; font-weight:bold; float:right;">${params.data.total || '--'}</span><br/>
+            人员数量：<span style="color:#fff; font-weight:bold; float:right;">${params.data.person || '--'}</span><br/>
+            人车比：&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fff; font-weight:bold; float:right;">${params.data.online || '--'}</span><br/>
+            持证人数：<span style="color:#fff; font-weight:bold; float:right;">${params.data.certify || '--'}</span>
+          </div>
+        </div>
+      `;
+    }
+  },
+
     series: [
       // === 添加散点层用于显示标记点和标签 ===
       {
@@ -408,69 +385,9 @@ const renderGlobe = () => {
 
         
 
-        label: {
-        show: true,
-        position: "top",
-        distance: 15,
-        // 使用 formatter 函数动态拼接数据
-        formatter: function (params) {
-          const d = params.data || {};
-          const name = d.name || "目标区域";
-          
-          // 容错处理：校验是否为有效数字
-          // 排除 null、undefined、空字符串，以及无法转换为数字的值
-          const formatNum = (val) => {
-            if (val === null || val === undefined || val === '' || val === 0)  return '--';
-            if (isNaN(Number(val))) return '--';
-            return val;
-          };
-
-          const total = formatNum(d.total);
-          const person = formatNum(d.person);
-          const online = formatNum(d.online);
-          const certify = formatNum(d.certify);
-
-          // 使用富文本标签包裹内容
-          return `{title|${name}}\n{hr|}\n{label|列车总数：}{value|${total}}\n{label|人员数量：}{value|${person}}\n{label|人车比：}{value|${online}}\n{label|持证人数：}{value|${certify}}`;
-        },
-        textStyle: {
-          backgroundColor: "rgba(0, 10, 20, 0.85)", // 黑底微透，工业风
-          // borderColor: "#00e4ff",                   // 科技蓝边框
-          borderWidth: 1,
-          borderRadius: 2,
-          padding: [12, 15],                        // 弹窗内部留白
-          shadowColor: "rgba(0, 228, 255, 0.3)",    // 边框外发光
-          shadowBlur: 10,
-          // 定义富文本各部分的具体样式
-          rich: {
-            title: {
-              color: "#00e4ff",
-              fontSize: 30,
-              fontWeight: "bold",
-              align: "left",
-              padding: [0, 0, 8, 0],
-            },
-            label: {
-              color: "#b0cbe9",
-              fontSize: 18,
-              lineHeight: 24,
-              align: "left",
-            },
-            value: {
-              color: "#ffffff",
-              fontSize: 20,
-              fontWeight: "bold",
-              fontFamily: "Arial", // 数字使用非衬线体更干练
-              lineHeight: 24,
-              align: "right",
-            },
-          },
-        },
-
-        
-
+      label: {
+        show: false,
       },
-
       
 
         data: [], 
@@ -497,6 +414,7 @@ const renderGlobe = () => {
       
     ],
   };
+
   myChart.value.setOption(option);
   updateView(props.targetCoords);
 };
@@ -531,8 +449,8 @@ const updateView = (coords) => {
     top: "middle",
     left: "center",
     light: {
-      main: { intensity: 1.5, shadow: false },
-      ambient: { intensity: 0.5 },
+      main: { intensity: 10, shadow: false },
+      ambient: { intensity: 10 },
     },
     viewControl: viewOption,
   };
@@ -692,78 +610,25 @@ const updateView = (coords) => {
         borderColor: "rgba(51, 223, 255, 0.4)" 
       },
      
-      
       label: {
-        show: true,
-        position: "top",
-        distance: 15,
-        
-
-        // 使用 formatter 函数动态拼接数据
-        formatter: function (params) {
-          const d = params.data || {};
-          const name = d.name || "目标区域";
-          
-          // 容错处理：校验是否为有效数字
-          // 排除 null、undefined、空字符串，以及无法转换为数字的值
-          const formatNum = (val) => {
-            if (val === null || val === undefined || val === '' || val === 0)  return '--';
-            if (isNaN(Number(val))) return '--';
-            return val;
-          };
-
-          const total = formatNum(d.total);
-          const person = formatNum(d.person);
-          const online = formatNum(d.online);
-          const certify = formatNum(d.certify);
-
-          // 使用富文本标签包裹内容
-          return `{title|${name}}\n{hr|}\n{label|列车总数：}{value|${total}}\n{label|人员数量：}{value|${person}}\n{label|人车比：}{value|${online}}\n{label|持证人数：}{value|${certify}}\n`;
-        },
-
-        textStyle: {
-          backgroundColor: "rgba(0, 10, 20, 0.85)", // 黑底微透，工业风
-          borderColor: "#00e4ff",                   // 科技蓝边框
-          borderWidth: 1,
-          borderRadius: 2,
-          padding: [12, 15],                        // 弹窗内部留白
-          shadowColor: "rgba(0, 228, 255, 0.3)",    // 边框外发光
-          shadowBlur: 10,
-          // 定义富文本各部分的具体样式
-          rich: {
-            title: {
-              color: "#00e4ff",
-              fontSize: 30,
-              fontWeight: "bold",
-              align: "left",
-              padding: [0, 0, 8, 0],
-            },
-            // hr: {
-            //   borderColor: "rgba(0, 228, 255, 0.3)",
-            //   width: "100%",
-            //   borderWidth: 0.5,
-            //   height: 0,
-            //   padding: [0, 0, 8, 0],
-            // },
-            label: {
-              color: "#b0cbe9",
-              fontSize: 18,
-              lineHeight: 24,
-              align: "left",
-            },
-            value: {
-              color: "#ffffff",
-              fontSize: 20,
-              fontWeight: "bold",
-              fontFamily: "Arial", // 数字使用非衬线体更干练
-              lineHeight: 24,
-              align: "right",
-            },
-          },
-        },
+        show: false, // 关闭弹窗显示
       },
       data: pinData, // 有数据就显示，没数据([])就自动隐藏
+      emphasis: {
+
+      tooltip: {
+      show: false
     },
+      label: {
+      show: false,
+      formatter: '', // 强制让它没内容可显
+      opacity: 0
+    }
+  },
+    },
+
+    
+    
 
     {
       type: "scatter3D",
@@ -774,9 +639,9 @@ const updateView = (coords) => {
       zlevel: 99,     // 层级略低于当前主气泡(100)，防止遮挡当前的高亮弹窗
       itemStyle: { 
         color: "#33DFFF", 
-        opacity: 0.6, // 透明度设低一点，让历史点稍暗，突出当前正在看的主气泡
+        opacity: 0.8, // 透明度设低一点，让历史点稍暗，突出当前正在看的主气泡
         borderWidth: 4,   
-        borderColor: "rgba(51, 223, 255, 0.3)" 
+        borderColor: "rgba(51, 223, 255, 0.4)" 
       },
       label: { show: false }, // 🚀 关键：关闭弹窗显示
       data: historyPinData // 传入计算好的历史点数据
@@ -804,4 +669,51 @@ const handleResize = () => {
   height: 100%;
   overflow: hidden;
 }
+.custom-center-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* 调整偏移量：向下向右偏移一点，不要正好挡住中间的那个点 */
+  transform: translate(20px, -50%); 
+  z-index: 9999;
+  pointer-events: none; /* 穿透鼠标事件，不妨碍你拖拽地球 */
+  
+  /* 质感大放送：和侧边栏完全一致的 UI */
+  min-width: 140px;
+  padding: 10px 15px;
+  background: rgba(10, 30, 50, 0.7);
+  backdrop-filter: blur(8px); /* 毛玻璃 */
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 228, 255, 0.4);
+  box-shadow: inset 0 0 15px rgba(0, 228, 255, 0.2), 
+              0 5px 15px rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+}
+
+.tooltip-header {
+  font-family: "almm";
+  color: #00e4ff;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(0, 228, 255, 0.3);
+}
+
+.tooltip-body {
+  font-family: "almm";
+  color: #b0cbe9;
+  font-size: 14px;
+  line-height: 2.2;
+}
+
+.tooltip-body .val {
+  color: #ffffff;
+  font-weight: bold;
+  float: right; /* 让数字靠右对齐，非常整齐 */
+}
+
 </style>
+
+
+
